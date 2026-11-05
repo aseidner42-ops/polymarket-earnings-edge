@@ -1,0 +1,138 @@
+# Signal weights, default thresholds, and trading-friction parameters.
+# Tune the model HERE, not in code. Each tools/signals.py signal emits a score
+# in [-1, +1] (positive = leans toward a BEAT / outcome=YES). scoring.py takes a
+# weighted sum, scales it, and squashes with a logistic into a probability.
+
+# ---------------------------------------------------------------------------
+# Signal weights = magnitudes only (all positive). The SIGN of each signal's
+# contribution lives in its score in tools/signals.py, and scoring.py decides
+# which signals feed the FUNDAMENTAL beat model vs the PRICED-IN index. Papers:
+#   sue_momentum        Bernard-Thomas 1989, Ball-Brown 1968  (SUE autocorrelation / PEAD)
+#   analyst_revision    Stickel 1991, Chan-Jegadeesh-Lakonishok 1996
+#   surprise_streak     historical earnings-surprise persistence
+#   pre_earnings_drift  Jegadeesh-Titman 1993 (momentum into the print)
+#   over_extrapolation  Kelly 2016 (extreme pre-earnings run-up = beat already priced in)
+#   rel_strength        relative strength vs sector + index
+#   volume_buildup      Beaver 1968 (pre-earnings volume = information arrival)
+#   options_skew        options-implied directional lean (put/call IV skew)
+#   options_move        options-implied expected-move size (priced-in only, non-directional)
+# ---------------------------------------------------------------------------
+# CALIBRATED v1.1 (2026-06-11) from a 131-event diverse basket. Tested signals
+# (sue_momentum, surprise_streak, pre_earnings_drift, rel_strength) set ∝ their
+# correlation with actual EPS beats. Untested signals (analyst_revision,
+# news_sentiment, options*, over_extrapolation, volume_buildup) kept at original
+# values pending free history. Calibrated model: acc 0.771 / Brier 0.168 vs
+# always-beat baseline 0.725 / 0.199 -> beats baseline. See output/backtest_report_*.md.
+# ORIGINAL (pre-calibration): sue_momentum 1.20, surprise_streak 0.90,
+#   pre_earnings_drift 0.60, rel_strength 0.50; logistic intercept 0.30, gain 0.90.
+weights:
+  sue_momentum:        0.79   # calibrated (was 1.20); corr 0.21
+  analyst_revision:    1.40   # REAL revision data now (yfinance up/down + drift) — proven
+                              # predictor (Stickel 1991); fresh downgrades against a beat-streak
+                              # are highly informative, so it earns more weight than the old proxy.
+  surprise_streak:     1.20   # calibrated (was 0.90); strongest, corr 0.32
+  pre_earnings_drift:  0.93   # calibrated (was 0.60); corr 0.25
+  over_extrapolation:  0.80   # untested
+  rel_strength:        0.74   # calibrated (was 0.50); weakest tested, corr 0.20
+  volume_buildup:      0.30   # untested
+  options_skew:        0.40   # untested
+  options_move:        0.50   # untested
+  news_sentiment:      0.60   # untested (free Finnhub headline lexicon tilt)
+  peer_beats:          0.50   # sector tailwind: fraction of peers that beat last qtr
+  short_interest:      0.40   # reaction-only: squeeze potential on a beat
+  dispersion:          0.50   # analyst forecast dispersion (Diether-Malloy 2002, Johnson 2004)
+  accruals:            0.50   # earnings quality: low accruals = persistent (Sloan 1996)
+  fundamental_trend:   0.55   # revenue decel + margin compression (free, point-in-time miss signal)
+  piotroski:           0.20   # Piotroski 2000 F-score. CUT 0.50->0.20 (2026-06-27): corr w/ beat
+                              # flips sign across 3 baskets (+0.095, +0.036, -0.068) = NOISE, no
+                              # consistent edge. Kept small (not zero) as weak quality context;
+                              # honest call — Richardson 2010 warned these anomalies are attenuated.
+  pump:                0.40   # PUMP pre-earnings pressure as a beat signal (2026-08-06). OOS-
+                              # validated: adding it lowered held-out Brier 0.0882->0.0864. Small
+                              # but real; de-correlated vs pre_earnings_drift. Auto-fitter tunes OOS.
+  filing_risk:         0.70   # SEC 8-K event risk: informs risk ranking, doesn't trigger false misses
+                              # (at 1.2 it flipped cyclical beats like CVX wrongly; 60-event OOS tune)
+
+# Logistic scaling. probability = 1 / (1 + exp(-(intercept + gain * weighted_sum)))
+logistic:
+  intercept: 1.00   # calibrated (was 0.30); grid-min Brier — note: at grid edge, revisit with larger sample
+  gain:      0.70   # calibrated (was 0.90)
+  market_cap_pp: 5  # critique #4/#6: price/positioning family may move the beat prob by <= this
+                    # many percentage points (until forward evidence earns it more)
+
+# Confidence from how many of the 5 FUNDAMENTAL signals had usable data + agreement.
+confidence:
+  min_signals_for_high: 4     # >= this many present fundamental signals AND agreement -> "high"
+  min_signals_for_med:  2
+  agreement_high: 0.60        # fraction of present signals pointing the same way
+
+# EDGE ENGINE — the part that can actually pay. The market price already encodes
+# consensus + base rate, so we DON'T re-predict the beat; we predict the market's
+# ERROR. Anchor on the market price and deviate only on ORTHOGONAL signals the market
+# tends to underweight: SEC event risk, fundamental deterioration, Kelly
+# over-extrapolation, fresh analyst revisions, options skew. No orthogonal signal => no edge.
+edge:
+  lambda_max: 0.40        # SCAR-SHRINKAGE cap (2026-09-21): P_edge = P_mkt + λ(SCAR)·(P_model−P_mkt),
+                          # λ=(SCAR/100)·lambda_max. Even at max conviction we move only 40% toward
+                          # our model — never fully override the better-calibrated market. Low SCAR
+                          # => λ≈0 => defer to market. Fixes the over-extremizing that lost money.
+  gain: 0.15              # (legacy orthogonal-tilt fallback only, when model_prob/scar unavailable)
+                          # bets show our market-DISAGREEMENTS lose (net_edge>=3% = -0.54/$1). Until
+                          # a real edge is proven forward, deviate LESS from the (better-calibrated)
+                          # crowd. Grounded response to the loss data, not curve-fit; reversible.
+                          # smg_autofit will re-tune this on OOS forward P&L once tilt-logged bets resolve.
+  orthogonal:
+    filing_risk:        1.00   # SEC 8-K event risk (market slow to price departures/restructuring)
+    fundamental_trend:  0.80   # margin/revenue deterioration
+    over_extrapolation: 0.80   # Kelly: market over-extrapolates recent strength -> fade
+    analyst_revision:   0.70   # fresh estimate revisions the market may lag
+    options_skew:       0.50   # options positioning
+  min_edge_to_flag: 0.06       # net market-aware edge must clear this to call it tradeable
+
+# Post-earnings reaction model (stock_up outcome, Q3). Grounded in Kelly 2016:
+# a high extrapolated-return measure predicts a post-announcement REVERSAL (down).
+reaction:
+  kelly_reversal:    0.30   # weight on signed over-extrapolation -> reversal (Kelly 2016)
+  priced_in_penalty: 0.60   # how much the priced-in index discounts a beat into the move
+  short_squeeze:     0.15   # high short interest -> upside pop on a beat (stock_up only)
+  announcement_premium: 0.03  # Frazzini-Lamont 2007: stocks drift up into earnings
+  inattention_amp:      0.10  # DellaVigna-Pollet 2009: Friday/after-close prints -> more drift
+  direction_reliability: 0.35 # HONESTY clamp on stock_up: post-earnings direction tested at
+                              # coin-flip (~3,000 events) -> compress deviation from 50% to 35%.
+                              # Set to 1.0 only if a real directional edge is ever proven forward.
+
+# Default user thresholds (overridable on the CLI).
+defaults:
+  eps_beat_pct: 0.0           # "beat" = surprise > this %. 0 = beat consensus at all.
+  revenue_beat_pct: 0.0
+
+# Trading frictions for net-of-cost EV (ev.py). Polymarket-specific.
+frictions:
+  taker_fee: 0.0              # Polymarket charges no explicit taker fee on most markets; keep tunable
+  assumed_spread: 0.02        # half-spread cost in probability terms if live spread unknown
+  uncertainty_haircut: 0.05   # shave model edge to account for model error / liquidity / resolution risk
+  min_edge_to_flag: 0.07      # net edge must exceed this (7 pts) to recommend a side
+
+# SMG — Stake & Market-edge Gauge (formerly PUMP): Ψ = E·w(K)·u(σ̂)·r(V) − f_c,
+# stake = ½-Kelly·shrink (capped). Needs a Polymarket price. PROVISIONAL defaults from
+# EV/Kelly + literature — NOT fit on realized P&L. Fit on the forward vault once >=30 bets
+# resolve (tools/forward_test.py); never hand-tune. Research only — SMG never trades.
+smg:
+  lambda_sigma:  0.04   # u(σ̂) sensitivity to the CWSF surprise band (σ̂ in % units)
+  sigma_ref:     12.0   # reference band (%); σ̂ here => u≈0.67
+  gamma_vol:     0.6    # r(V) de-risk slope above the 50th VIX percentile
+  r_min:         0.3    # floor on r(V) (extreme regime never fully zeros edge)
+  kelly_fraction: 0.5   # fractional (half) Kelly — safety against over-betting
+  f_max:         0.10   # hard cap on stake as a fraction of bankroll
+  min_edge:      0.03   # Ψ must clear this (3 pts net) to call a trade LIVE
+  scar_min_K:    45.0   # below this SCAR predictability, SMG refuses (low conviction)
+
+# PUMP — Pre-earnings Underlying Move Pressure: PURE PRICE, no Polymarket.
+# PUMP = 100·tanh(z·conv/γ), z = abnormal 5d run-up / expected 5d move, conv = volume confirm.
+# Backtestable (tools/backtest.py logs pump per event). Constants are principled, not fit.
+pump:
+  beta_vol:  0.3    # volume-confirmation sensitivity
+  gamma:     2.5    # squash scale (raised 1.5->2.5 so it doesn't saturate at ±98 for every
+                    # big move — now distinguishes a -9% run from a -20% crash)
+  ext_ref:   6.0    # Kelly ExtRet (%) reference for the follow/fade overlay
+  strong:    40.0   # |PUMP| above this = a notably stretched run-up

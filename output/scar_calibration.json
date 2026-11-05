@@ -1,0 +1,10 @@
+{
+  "threshold": 50,
+  "events": 360,
+  "high_n": 108,
+  "high_accuracy": 0.954,
+  "overall_accuracy": 0.858,
+  "in_sample": true,
+  "set_by": "daily_improve",
+  "at": "2026-07-24T07:04:37"
+}

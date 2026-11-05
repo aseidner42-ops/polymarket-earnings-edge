@@ -1,0 +1,13 @@
+{
+  "a": 0.6497,
+  "b": 1.0018,
+  "form": "corrected = sigmoid(a + b*logit(raw_contract_prob))",
+  "fitted_at": "2026-09-21",
+  "method": "Platt recalibration, OOS-validated (train/test split by ticker)",
+  "held_out_brier_raw": 0.1804,
+  "held_out_brier_recal": 0.1644,
+  "held_out_delta": -0.016,
+  "n_events": 6104,
+  "why": "synthetic-strike backtest showed contract_prob systematically under-predicts P(clear strike) by ~14pp because firms beat consensus ~72% of the time; a near-pure intercept shift (b~=1) corrects it. Applies to strike/contract probabilities only.",
+  "reversible": "delete this file to revert to raw contract_prob"
+}

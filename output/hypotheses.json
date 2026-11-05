@@ -1,0 +1,113 @@
+{
+  "pre_registered": [
+    {
+      "id": "strike_gap_v1",
+      "registered_at": "2026-09-21",
+      "route": "A - structural strike-gap mispricing",
+      "claim": "For Polymarket EPS contracts with an explicit FROZEN strike, betting the side favored by P(round(reported EPS,2) > strike) - where that probability is computed from FRESH consensus (>=3 analysts) plus the firm's cents-model surprise distribution, NOT from our beat-signal blend - is positive-EV net of fees/spread, because the crowd misprices markets whose frozen strike has drifted away from current consensus.",
+      "rationale": "Our beat-signal disagreements with the market LOSE (-0.57/$1). This bet deliberately does NOT use those signals. It uses consensus (the market's own best estimate) + the frozen strike, exploiting a MECHANICAL mispricing (strike set at creation, consensus drifts) rather than trying to out-predict analysts.",
+      "entry_gate": {
+        "real_strike_parsed": true,
+        "strike_within_band_of_consensus": "0.3..3.0x",
+        "consensus_source": "yfinance_estimate (fresh)",
+        "min_analysts": 3,
+        "not_abstaining": true,
+        "min_executable_edge_after_friction": 0.05,
+        "requires_live_two_sided_book": true
+      },
+      "side_rule": "YES if contract_prob - yes_price >= min_edge; NO if yes_price - contract_prob >= min_edge",
+      "logging_note_tag": "strikegap-fwd",
+      "success_criterion": ">=30 resolved strike-gap bets AND realized P&L 95% CI-low > 0 AND n >= the live power requirement (forward_test n_needed_at_2.6pct) AND positive after removing the top 5 wins",
+      "kill_criterion": ">=30 resolved AND 95% CI-high < 0 (structural edge disproven)",
+      "status": "OPEN - RE-BASELINED 2026-11-03, scoring restarts at 0/30 on bets with a verified executable book. NO tradeable claim until success_criterion met on those bets.",
+      "prerequisite": "contract_prob must be calibrated (synthetic-strike backtest); see output/strike_calibration.txt",
+      "honest_notes": "No historical Polymarket strikes exist -> this CANNOT be backtested for a money edge; forward vault is the only judge. Do not data-snoop: this exact rule is frozen as written.",
+      "scoring_starts_at": "2026-11-03",
+      "rebaselined_2026_11_03": "Re-baselined. 41 strike-gap bets had resolved and showed +0.542/$1 (CI [+0.09,+1.05], robust to its top 5). That looks like the success criterion being met \u2014 it is NOT, and must not be claimed: the entry gate requires min_executable_edge_after_friction>=0.05 and a live two-sided book, and NONE of those rows recorded the book, so it is unverifiable whether the bets ever met the gate they were registered under. An unverifiable gate is a failed test, not a passed one. Execution context is logged from 2026-11-03 (edge_log: yes_bid/yes_ask/book_spread/depth_usd/max_usd/executable_edge), so scoring restarts from that date at 0/30.",
+      "effect_size_assumed": "+0.026 per contract (Burgi-Deng-Whelan maker return on >=50c contracts)",
+      "power_note": "Original criterion '>=30 resolved bets with CI-low>0' is NOT a powered test. At the payoff SD our vault shows, 30 bets cannot separate a real 2.6% edge from zero; a CI that excludes 0 at that n is more likely a tail fluke (this is literally what happened on 2026-10-30). Required n is now computed live by forward_test.required_n(sd, effect) and reported as n_needed_at_2.6pct. Favorites-zone bets need ~2,400; longshot bets ~27,000."
+    },
+    {
+      "id": "favorite_zone_v1",
+      "registered_at": "2026-11-05",
+      "scoring_starts_at": "2026-11-05",
+      "route": "B - favorite-longshot bias, taker side",
+      "source": "PRE-REGISTERED FROM EXTERNAL LITERATURE, NOT FROM OUR OWN RESOLVED BETS. Burgi, Deng & Whelan, 'Makers and Takers: The Economics of the Kalshi Prediction Market' (UCD, Jan 2026), 46,282 contracts / 12,403 events / 2021-Apr 2025: buyers of contracts under 10c lose >60%; contracts above 50c earn a small statistically significant positive return; makers on >=50c earn +2.6% after commission (SD 33%); the bias is worse on the taker side. This matters for provenance: the rule was NOT found by searching our vault, so it is not a multiple-comparisons artifact of our own data.",
+      "claim": "Restricting to FAVORITE purchases - where the contract we buy costs >= $0.50 (YES costs q, NO costs 1-q) - produces positive realized P&L net of fees and spread, while longshot purchases (cost < 0.50) do not.",
+      "entry_gate": {
+        "contract_cost_at_entry": ">=0.50",
+        "executable_book": true,
+        "min_executable_edge_after_friction": 0.03,
+        "eps_basis": "not gaap",
+        "price_band": "0.05<q<0.95"
+      },
+      "side_rule": "Only take the side whose contract costs >= 0.50 at entry. Never buy below 0.10.",
+      "effect_size_assumed": "+0.026 per contract",
+      "success_criterion": "realized P&L 95% bootstrap CI-low > 0 AND n >= live n_needed_at_2.6pct (~2,400 at the observed favorites SD of 0.65) AND positive after removing the top 5 wins",
+      "kill_criterion": "n >= 500 AND 95% CI-high < 0",
+      "logging_note_tag": "favzone-fwd",
+      "status": "OPEN - forward accumulation from 2026-11-05. NO tradeable claim until powered.",
+      "honest_notes": "Two caveats kept in writing. (1) The literature's +2.6% belongs to MAKERS; we are a TAKER, the side the same paper shows does worse - so our expected effect is SMALLER than 2.6%, and the required n correspondingly LARGER. (2) Our own favorites subset is currently +0.033/$1 on n=117 with CI [-0.087,+0.148] - consistent with the hypothesis and equally consistent with zero. That subset is PRIOR data and does not count toward this test."
+    }
+  ],
+  "observed_not_registered": {
+    "_what_this_is": "Patterns seen while SEARCHING resolved bets on 2026-11-03. They are NOT results and carry NO weight. ~20 subgroups were tested, so at a 5% level one expects about one false 'significant' slice by chance alone \u2014 several of these are probably that. They are written down so that if one is ever promoted to a real hypothesis, it is on record that it came from a search, and it must then be pre-registered and tested on bets that did not exist on 2026-11-03. Do not score these against the data that produced them.",
+    "_seen_on": "2026-11-03",
+    "_n_subgroups_tested": "~20",
+    "candidates": [
+      {
+        "pattern": "model DISAGREES with the market favorite",
+        "in_sample": "n=60 pnl +0.651 ex-top5 +0.168",
+        "caution": "directly CONTRADICTS the 2026-08-06 finding that disagreements lose (-0.54/$1). One of the two is noise."
+      },
+      {
+        "pattern": "|model-market| gap >= 0.5",
+        "in_sample": "n=14 pnl +2.113 ex-top5 -0.014",
+        "caution": "n=14 and the mean dies entirely without its top 5 wins. Almost certainly tail noise."
+      },
+      {
+        "pattern": "agree with favorite AND q<0.7",
+        "in_sample": "OLDER -0.163 / NEWER +0.253 ex-top5 +0.072",
+        "caution": "only subgroup positive in the newer half with a positive tail-robust mean; weakest claim worth watching."
+      },
+      {
+        "pattern": "SCAR>=35",
+        "in_sample": "OLDER +0.092 / NEWER +0.332, ex-top5 NEGATIVE in both",
+        "caution": "tail-driven in both halves. Not evidence."
+      }
+    ]
+  },
+  "_scoring_rules_2026_11_03": [
+    "A hypothesis is scored ONLY by forward_test.score_hypothesis(id), which refuses any rule not in pre_registered.",
+    "Only bets with logged_at >= scoring_starts_at count. No backward scoring, ever.",
+    "Only bets with a verified executable book count (max_usd or depth_usd >= $25).",
+    "P&L is computed at the FILL price (ask for YES, 1-bid for NO), never the mid.",
+    "Confirmation needs >=30 such bets AND bootstrap CI-low>0 AND a positive mean after removing the top 5 wins.",
+    "The success criterion is the one written at registration. Finding a better criterion later voids the test.",
+    "A verdict also requires POWER: n >= required_n(sd, 0.026). A CI excluding 0 on an underpowered sample is reported as UNDERPOWERED, not as an edge (added 2026-11-05)."
+  ],
+  "trial_log": {
+    "_why": "Deflated Sharpe Ratio (Bailey & Lopez de Prado) and PBO/CSCV both need the NUMBER OF TRIALS to judge whether the best result clears the expected maximum under zero skill. We recorded THAT searches happened but never HOW MANY, which is the input the correction needs. Every subgroup tested, weight fit, or threshold tried is a trial - count it.",
+    "trials": [
+      {
+        "date": "2026-11-03",
+        "n_trials": 20,
+        "what": "subgroup sweep of 272 resolved bets (q bands, SCAR bands, outcome type, agreement with favorite, gap size, time split x 5 rules)",
+        "outcome": "4 slices looked profitable; expected ~1 false positive per 20 at the 5% level. None promoted."
+      },
+      {
+        "date": "2026-11-05",
+        "n_trials": 6,
+        "what": "cost-bucket sweep (<0.10, 0.10-0.30, 0.30-0.50, 0.50-0.70, 0.70+, favorites-vs-longshots)",
+        "outcome": "informed favorite_zone_v1, but that rule's PROVENANCE is the external Kalshi paper, not this sweep."
+      },
+      {
+        "date": "cumulative",
+        "n_trials": "see autofit history",
+        "what": "autofit weight fits adopt/decline on a reused OOS split",
+        "outcome": "adaptive overfitting risk acknowledged 2026-09-21; block-bootstrap gate added."
+      }
+    ],
+    "running_total_subgroup_trials": 26
+  }
+}

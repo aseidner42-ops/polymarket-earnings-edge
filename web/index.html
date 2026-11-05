@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>EARNINGS EDGE // terminal</title>
+<style>
+  :root{
+    --bg:#05080d; --bg2:#0a0f17; --panel:#0d141f; --line:#1d2a3a;
+    --green:#39ff14; --green2:#1fd80a; --cyan:#22d3ee; --amber:#ffb000;
+    --red:#ff3b5c; --text:#d7ffe0; --mut:#5c768a;
+    --glow:0 0 8px rgba(57,255,20,.6), 0 0 24px rgba(57,255,20,.25);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:radial-gradient(circle at 50% -10%, #0c1726, var(--bg) 60%);
+    color:var(--text);font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:repeating-linear-gradient(0deg,rgba(57,255,20,.03) 0 1px,transparent 1px 3px);}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.15;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:40px 40px;}
+  .tape{position:fixed;top:0;left:0;right:0;height:30px;background:#04060a;border-bottom:1px solid var(--line);
+    overflow:hidden;z-index:5;display:flex;align-items:center;}
+  .tape .row{display:inline-flex;gap:34px;white-space:nowrap;padding-left:100%;animation:scroll 28s linear infinite;font-size:12px;}
+  .tape .up{color:var(--green);} .tape .dn{color:var(--red);} .tape .sym{color:var(--mut);}
+  @keyframes scroll{to{transform:translateX(-100%);}}
+  .stage{position:relative;z-index:3;max-width:860px;margin:0 auto;padding:64px 20px 120px;}
+  .brand{text-align:center;margin-bottom:8px;}
+  .brand h1{margin:0;font-size:26px;letter-spacing:3px;color:var(--green);text-shadow:var(--glow);}
+  .brand .sub{color:var(--mut);font-size:12px;letter-spacing:2px;}
+  .score{position:fixed;top:38px;right:14px;z-index:5;font-size:12px;color:var(--amber);border:1px solid var(--line);background:#04060a;padding:5px 10px;border-radius:6px;}
+  #homeBtn{position:fixed;top:38px;left:14px;z-index:6;display:none;cursor:pointer;font-size:12px;
+    color:var(--cyan);border:1px solid var(--cyan);background:#04060a;padding:5px 12px;border-radius:6px;letter-spacing:1px;}
+  #homeBtn:hover{box-shadow:0 0 12px rgba(34,211,238,.5);}
+  .steps{display:flex;justify-content:center;margin:18px 0 26px;flex-wrap:wrap;}
+  .node{display:flex;align-items:center;color:var(--mut);font-size:10px;letter-spacing:1px;}
+  .dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;margin:0 7px;background:var(--bg2);transition:.3s;font-weight:700;font-size:11px;}
+  .node.on .dot{border-color:var(--green);color:var(--green);box-shadow:var(--glow);}
+  .node.done .dot{border-color:var(--green2);background:var(--green2);color:#04060a;}
+  .bar{width:34px;height:2px;background:var(--line);} .node.done + .bar{background:var(--green2);}
+  .card{background:linear-gradient(180deg,var(--panel),#070d15);border:1px solid var(--line);border-radius:14px;padding:26px;box-shadow:0 18px 50px rgba(0,0,0,.6);animation:pop .35s ease;}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+  .page.hidden{display:none;}
+  h2.step{margin:0 0 4px;font-size:18px;color:var(--cyan);letter-spacing:1px;}
+  .blurb{color:var(--mut);font-size:12.5px;margin-bottom:18px;}
+  label{display:block;font-size:11px;color:var(--mut);letter-spacing:1px;margin:14px 0 6px;text-transform:uppercase;}
+  input,select{width:100%;background:#04070c;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:13px 14px;font:15px ui-monospace,monospace;outline:none;transition:.2s;}
+  input:focus,select:focus{border-color:var(--green);box-shadow:var(--glow);}
+  .tickerbig{font-size:24px;letter-spacing:4px;text-transform:uppercase;text-align:center;color:var(--green);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:6px;}
+  .pick{cursor:pointer;border:1px solid var(--line);border-radius:14px;padding:22px 14px;text-align:center;background:#070d15;transition:.18s;}
+  .pick:hover{transform:translateY(-4px) scale(1.03);border-color:var(--green);box-shadow:var(--glow);}
+  .pick:active{transform:scale(.97);}
+  .pick .ico{font-size:32px;} .pick .name{margin-top:8px;color:var(--green);letter-spacing:1px;font-size:14px;}
+  .pick .desc{color:var(--mut);font-size:11px;margin-top:6px;line-height:1.4;}
+  .pick.sel{border-color:var(--green);box-shadow:var(--glow);background:#06140a;}
+  .opts{margin-top:20px;} .opts .q{color:var(--cyan);font-size:14px;margin-bottom:10px;}
+  .opt{display:block;width:100%;text-align:left;background:#04070c;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:9px;cursor:pointer;font:14px ui-monospace,monospace;transition:.15s;}
+  .opt:hover{border-color:var(--green);box-shadow:var(--glow);} .opt.sel{border-color:var(--green);background:#06140a;color:var(--green);}
+  .nav{display:flex;justify-content:space-between;margin-top:24px;gap:12px;}
+  .btn{background:#04070c;color:var(--green);border:1px solid var(--green);border-radius:10px;padding:13px 22px;font:15px ui-monospace,monospace;letter-spacing:1px;cursor:pointer;transition:.15s;}
+  .btn:hover{box-shadow:var(--glow);background:#06140a;} .btn:active{transform:scale(.96);}
+  .btn.ghost{color:var(--mut);border-color:var(--line);}
+  .btn.exec{font-size:18px;font-weight:700;padding:16px 30px;animation:breathe 2.2s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{box-shadow:0 0 6px rgba(57,255,20,.4);}50%{box-shadow:0 0 22px rgba(57,255,20,.7);}}
+  .btn:disabled{opacity:.4;cursor:not-allowed;animation:none;}
+  .hint{color:var(--mut);font-size:11px;margin-top:8px;line-height:1.5;}
+  .ok{color:var(--green);font-size:11px;margin-top:8px;}
+  details{margin-top:14px;border:1px solid var(--line);border-radius:9px;padding:6px 12px;}
+  summary{color:var(--mut);font-size:12px;cursor:pointer;}
+  input[type=file]{padding:9px;}
+  .chk{display:inline-flex;align-items:center;gap:8px;color:var(--mut);font-size:12px;margin-top:12px;text-transform:none;letter-spacing:0;}
+  .chk input{width:auto;}
+  .term{background:#04070c;border:1px solid var(--line);border-radius:10px;padding:6px 0;margin-top:8px;}
+  table{width:100%;border-collapse:collapse;}
+  td{padding:9px 14px;border-bottom:1px solid #101a26;font-size:13px;vertical-align:top;white-space:pre-wrap;}
+  td.k{color:var(--mut);width:44%;text-transform:uppercase;font-size:11px;letter-spacing:.5px;}
+  tr.hl td{color:var(--green);font-weight:700;font-size:15px;text-shadow:var(--glow);}
+  tr.rec td.v{color:var(--amber);font-weight:700;}
+  pre{background:#04070c;border:1px solid var(--line);border-radius:10px;padding:16px;overflow:auto;font-size:12px;color:var(--text);}
+  .err{color:var(--red);white-space:pre-wrap;margin-top:12px;}
+  .bottomline{margin-top:14px;border:1px solid var(--green);border-radius:12px;padding:14px 16px;background:#06140a;box-shadow:var(--glow);}
+  .bottomline .bl-ttl{color:var(--green);letter-spacing:2px;font-size:12px;margin-bottom:8px;}
+  .bottomline .bl-row{font-size:13.5px;line-height:1.6;margin:4px 0;} .bottomline .bl-row b{color:var(--cyan);}
+  .loading{color:var(--green);font-size:14px;margin-top:16px;}
+  .loading::after{content:"_";animation:blink 1s step-end infinite;} @keyframes blink{50%{opacity:0;}}
+  .float{position:fixed;z-index:30;color:var(--green);font-weight:700;pointer-events:none;text-shadow:var(--glow);animation:rise 1s ease-out forwards;}
+  @keyframes rise{to{transform:translateY(-46px);opacity:0;}}
+  .foot{text-align:center;color:var(--mut);font-size:11px;margin-top:22px;}
+  /* intel */
+  .intel{margin-top:20px;border:1px solid var(--cyan);border-radius:12px;padding:14px;background:#06121d;}
+  .intel .it{color:var(--cyan);font-size:12px;letter-spacing:1px;margin-bottom:10px;}
+  .rec{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #102330;}
+  .rec:last-child{border-bottom:0;}
+  .badge{flex:none;width:52px;height:40px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:15px;border:1px solid;}
+  .badge .lab{font-size:8px;font-weight:400;}
+  .b-HIGH{color:var(--green);border-color:var(--green);box-shadow:var(--glow);}
+  .b-SOME{color:var(--amber);border-color:var(--amber);}
+  .b-LOW{color:var(--mut);border-color:var(--line);}
+  .rec .l{font-size:13px;color:var(--text);} .rec .w{font-size:11px;color:var(--mut);margin-top:2px;line-height:1.45;}
+  .rec .sup{margin-top:6px;display:flex;gap:8px;}
+  .rec .sup input{padding:8px 10px;font-size:12px;}
+  .rec .sup .btn{padding:8px 12px;font-size:12px;}
+  .cand{display:block;width:100%;text-align:left;background:#04070c;border:1px solid var(--line);border-radius:9px;
+    padding:10px 12px;margin-top:8px;cursor:pointer;color:var(--text);font:12px ui-monospace,monospace;transition:.15s;}
+  .cand:hover{border-color:var(--green);box-shadow:var(--glow);}
+  .cand .pq{color:var(--text);} .cand .pm{color:var(--mut);margin-top:3px;}
+  .cand .yp{color:var(--amber);font-weight:700;}
+  .suggesting{color:var(--cyan);font-size:12px;margin-top:8px;}
+  .vsum{color:var(--mut);font-size:12px;line-height:1.7;} .vsum b{color:var(--text);}
+  /* guide */
+  #sage{position:fixed;right:18px;bottom:18px;z-index:25;display:none;align-items:flex-end;gap:10px;max-width:360px;}
+  #sage .avatar{font-size:42px;filter:drop-shadow(0 0 8px rgba(34,211,238,.7));animation:bob 2.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-7px) rotate(3deg);}}
+  #sage .avatar{cursor:pointer;}
+  #sage .bubble{display:none;background:#06121d;border:1px solid var(--cyan);border-radius:14px 14px 4px 14px;padding:12px 14px;font-size:12.5px;line-height:1.55;color:var(--text);box-shadow:0 0 18px rgba(34,211,238,.25);}
+  #sage.open .bubble{display:block;}
+  #sage .bubble b{color:var(--cyan);} #sage .name{color:var(--cyan);font-size:11px;letter-spacing:1px;margin-bottom:4px;}
+  /* SCAR kills badge (bottom-right) */
+  /* All three indicator badges live in one fixed vertical stack so they can never overlap. */
+  #badges{position:fixed;right:14px;top:70px;z-index:26;display:flex;flex-direction:column;
+          align-items:flex-end;gap:10px;max-height:calc(100vh - 86px);overflow-y:auto;
+          pointer-events:none;width:300px;}
+  #alertBar{display:none;position:fixed;top:0;left:0;right:0;z-index:40;cursor:pointer;
+    color:#000;font-weight:800;text-align:center;padding:10px 14px;font-size:13px;letter-spacing:.5px;
+    box-shadow:0 2px 14px rgba(0,0,0,.5);}
+  #badges>*{pointer-events:auto;}
+  #badges .bx{float:right;cursor:pointer;color:var(--mut);margin-left:10px;font-weight:700;}
+  #badges .bx:hover{color:#fff;}
+  #badges::-webkit-scrollbar{width:0;background:transparent;}
+  #smgBadge{display:none;text-align:right;max-width:288px;background:#0d0a02;border:1px solid var(--amber);border-radius:12px;padding:10px 14px;box-shadow:0 0 18px rgba(255,176,0,.18);}
+  #smgBadge .lab{color:var(--amber);font-size:10px;letter-spacing:1px;}
+  #smgBadge .psi{font-size:28px;font-weight:700;line-height:1.1;}
+  #smgBadge .sub{color:var(--text);font-size:12px;}
+  #smgBadge .why{color:var(--mut);font-size:10px;margin-top:3px;line-height:1.4;}
+  #smgBadge .comp{color:var(--mut);font-size:9px;margin-top:3px;}
+  #pumpBadge{display:none;text-align:right;max-width:288px;background:#020a12;border:1px solid #2a6f9e;border-radius:12px;padding:10px 14px;box-shadow:0 0 18px rgba(92,200,255,.15);}
+  #pumpBadge .lab{color:#5cc8ff;font-size:10px;letter-spacing:1px;}
+  #pumpBadge .psi{font-size:26px;font-weight:700;line-height:1.1;}
+  #pumpBadge .sub{color:var(--text);font-size:12px;}
+  #pumpBadge .why{color:var(--mut);font-size:10px;margin-top:3px;line-height:1.4;}
+  #pumpBadge .comp{color:var(--mut);font-size:9px;margin-top:3px;}
+  #scarBadge{display:none;text-align:right;}
+  #scarBadge .btn{font-size:13px;padding:9px 16px;border-color:var(--amber);color:var(--amber);}
+  #scarBadge .btn:hover{box-shadow:0 0 14px rgba(255,176,0,.6);background:#1a1205;}
+  #scarKills{margin-top:8px;background:#0d0a02;border:1px solid var(--amber);border-radius:12px;padding:12px 16px;min-width:190px;display:none;box-shadow:0 0 22px rgba(255,176,0,.25);}
+  #scarKills .k{font-size:38px;font-weight:800;line-height:1;letter-spacing:1px;}
+  #scarKills .lab{font-size:10px;color:var(--mut);letter-spacing:2px;}
+  #scarKills .testing{font-size:10.5px;color:var(--amber);margin-top:2px;font-style:italic;}
+  #scarKills .scarX{float:right;cursor:pointer;color:var(--mut);font-style:normal;margin-left:10px;letter-spacing:0;}
+  #scarKills .scarX:hover{color:var(--amber);}
+  #scarKills .tier{font-size:12px;margin-top:6px;letter-spacing:1px;}
+  #scarKills .why{font-size:10.5px;color:var(--mut);margin-top:6px;line-height:1.4;}
+  /* SCAR codex / storage (bottom-left) */
+  #scarTab{position:fixed;left:18px;bottom:18px;z-index:25;display:none;cursor:pointer;
+    background:#0d0a02;border:1px solid var(--amber);color:var(--amber);border-radius:10px;
+    padding:9px 14px;font-size:12px;letter-spacing:1px;}
+  #scarTab:hover{box-shadow:0 0 12px rgba(255,176,0,.5);}
+  #scarCodex{position:fixed;left:18px;bottom:18px;z-index:27;display:none;max-width:300px;
+    max-height:calc(100vh - 36px);overflow-y:auto;
+    background:#06121d;border:1px solid var(--amber);border-radius:12px;padding:0 14px 12px;font-size:11px;box-shadow:0 0 22px rgba(0,0,0,.6);}
+  #scarCodex .ttl{color:var(--amber);letter-spacing:1px;font-size:11px;margin-bottom:6px;
+    position:sticky;top:0;background:#06121d;padding:12px 0 6px;z-index:1;}
+  #scarCodex .ttl span{font-size:14px;}
+  #scarCodex .ln{color:var(--mut);line-height:1.5;}
+  #scarCodex .legend{margin-top:8px;}
+  #scarCodex .legend .row{display:flex;justify-content:space-between;color:var(--mut);padding:1px 0;}
+  #scarCodex .log{margin-top:8px;border-top:1px solid var(--line);padding-top:6px;}
+  #scarCodex .row{display:flex;justify-content:space-between;color:var(--text);padding:2px 0;}
+</style>
+</head>
+<body>
+<div id="alertBar" onclick="this.style.display='none'" title="click to dismiss"></div>
+<div class="tape"><div class="row" id="tape"></div></div>
+<div class="score" id="score">RUNS: 0</div>
+<div id="homeBtn" onclick="goHome()">⌂ RESTART</div>
+<div class="stage">
+  <div class="brand"><h1>▚ EARNINGS&nbsp;EDGE ▞</h1><div class="sub">// PRE-EARNINGS OVER-EXTRAPOLATION ENGINE · KELLY 2016 //</div></div>
+  <div class="steps" id="steps"></div>
+
+  <div class="page" id="p0"><div class="card">
+    <h2 class="step">▚ START ▞</h2><div class="blurb">What do you want to do?</div>
+    <div class="cards">
+      <div class="pick" data-home="stock"><div class="ico">🎯</div><div class="name">CHOOSE A STOCK</div><div class="desc">Run the full read on one ticker you pick</div></div>
+      <div class="pick" data-home="scan"><div class="ico">🛰</div><div class="name">SCAN</div><div class="desc">Find mispriced live Polymarket markets right now</div></div>
+      <div class="pick" data-home="vault"><div class="ico">📂</div><div class="name">VAULT</div><div class="desc">All your forward tests — pending + resolved</div></div>
+    </div>
+  </div></div>
+
+  <div class="page hidden" id="p1"><div class="card">
+    <h2 class="step">[1/5] TARGET</h2><div class="blurb">Which company are we hunting?</div>
+    <label>Ticker / company</label>
+    <input id="ticker" class="tickerbig" placeholder="NVDA" value="AAPL" autocomplete="off"/>
+    <div class="nav"><span></span><button class="btn" id="n1">CONTINUE ▶</button></div>
+  </div></div>
+
+  <div class="page hidden" id="p2"><div class="card">
+    <h2 class="step">[2/5] WHAT ARE WE READING?</h2><div class="blurb">Pick a category, then the exact question.</div>
+    <div class="cards" id="cats"></div>
+    <div class="opts hidden" id="optBox"><div class="q" id="optQ"></div><div id="optList"></div></div>
+    <div class="nav"><button class="btn ghost" data-back="1">◀ BACK</button><button class="btn" id="n2" disabled>CONTINUE ▶</button></div>
+  </div></div>
+
+  <div class="page hidden" id="p3"><div class="card">
+    <h2 class="step">[3/5] CHOOSE YOUR PLAY</h2><div class="blurb">What's the idea?</div>
+    <div class="cards">
+      <div class="pick" data-mode="predict"><div class="ico">🎯</div><div class="name">PREDICT</div><div class="desc">Live read + Polymarket edge</div></div>
+      <div class="pick" data-mode="backtest"><div class="ico">🧪</div><div class="name">BACKTEST</div><div class="desc">Validate vs always-beat baseline</div></div>
+      <div class="pick" data-mode="forward"><div class="ico">⏩</div><div class="name">FORWARD</div><div class="desc">Score past logged calls</div></div>
+      <div class="pick" data-mode="scan"><div class="ico">🛰</div><div class="name">SCAN</div><div class="desc">Find live markets where model disagrees most</div></div>
+    </div>
+    <div class="nav"><button class="btn ghost" data-back="2">◀ BACK</button><span></span></div>
+  </div></div>
+
+  <div class="page hidden" id="p4"><div class="card">
+    <h2 class="step">[4/5] LOAD THE CHAMBER</h2><div class="blurb" id="p4blurb"></div>
+    <div id="cfgPredict">
+      <div class="ok">✓ All market data auto-fetched (price, surprises, Kelly signal, options, news). You only add the Polymarket link.</div>
+      <div id="thWrap"><label id="thLabel">Threshold</label><input id="threshold" placeholder="optional" autocomplete="off"/></div>
+      <label>Polymarket URL / slug (optional — needed for edge)</label>
+      <input id="pm" placeholder="https://polymarket.com/event/..." autocomplete="off"/>
+      <button class="btn ghost" id="suggestBtn" style="margin-top:10px;font-size:12px;padding:9px 14px">🔍 SUGGEST MARKETS</button>
+      <div id="pmSuggest"></div>
+      <label>Earnings date (optional — auto-found if blank)</label>
+      <div style="display:flex;gap:8px">
+        <input id="edate" placeholder="YYYY-MM-DD" autocomplete="off"/>
+        <button class="btn ghost" id="scanDateBtn" style="font-size:12px;padding:9px 14px;white-space:nowrap">🌐 SCAN WEB</button>
+      </div>
+      <div id="dateMsg" class="hint"></div>
+      <label class="chk"><input type="checkbox" id="log"/> log this call for forward-testing</label>
+      <details><summary>advanced — override with your own TradingView snapshot CSV</summary>
+        <label>snapshot CSV (optional)</label><input type="file" id="snap" accept=".csv"/>
+        <div class="hint">Leave empty — the engine auto-fetches price. Only use this if you have a longer TradingView export.</div>
+      </details>
+    </div>
+    <div id="cfgBacktest" style="display:none">
+      <label>Backtest mode</label>
+      <div class="cards">
+        <div class="pick" data-bt="calibrate"><div class="ico">⚙️</div><div class="name">① CALIBRATE</div><div class="desc">Validate &amp; tune the model on the 35-ticker basket</div></div>
+        <div class="pick" data-bt="window"><div class="ico">📋</div><div class="name">② PER-EVENT</div><div class="desc">Each prediction vs actual + what differed, from a date</div></div>
+        <div class="pick" data-bt="reaction"><div class="ico">📈</div><div class="name">③ REACTION</div><div class="desc">Validate the post-earnings MOVE model (Q3 / Kelly reversal)</div></div>
+      </div>
+      <div id="btCalibCfg" style="display:none;margin-top:6px">
+        <label>Max quarters / ticker</label><input id="btQuarters" value="8"/>
+        <label class="chk"><input type="checkbox" id="btBasket" checked/> full 35-ticker basket (recommended)</label><br/>
+        <label class="chk"><input type="checkbox" id="btReport" checked/> write markdown report to output/</label>
+        <div class="hint">A single always-beater can't beat the baseline — use the basket for a real test.</div>
+      </div>
+      <div id="btReactionCfg" style="display:none;margin-top:6px">
+        <label class="chk"><input type="checkbox" id="btRxBasket" checked/> full basket (recommended) instead of just this ticker</label>
+        <div class="hint">Rebuilds each past stock_up call vs the realized close[-1]→[+2] move, and reports the Kelly reversal correlation. Validates the "real money" part on free price data.</div>
+      </div>
+      <div id="btWindowCfg" style="display:none;margin-top:6px">
+        <label>Look back</label>
+        <select id="btLookback" onchange="setLookback(this.value)" style="width:auto;display:inline-block">
+          <option value="1">1 year</option><option value="2">2 years</option>
+          <option value="3">3 years</option><option value="5" selected>5 years</option>
+        </select>
+        <div class="row2" style="margin-top:8px"><div><label>From date</label><input id="btSince" placeholder="YYYY-MM-DD"/></div>
+          <div><label>To date</label><input id="btUntil" placeholder="YYYY-MM-DD"/></div></div>
+        <label class="chk"><input type="checkbox" id="btWinBasket" checked/> full basket instead of just this ticker</label><br/>
+        <label class="chk"><input type="checkbox" id="btConfident" checked/> confident only — show where the model CAN be trusted (SCAR ≥45)</label>
+        <div class="hint">Scans the window for events where a backtest can actually work (high predictability), and scores those. Uncheck to see every event.</div>
+      </div>
+    </div>
+    <div id="cfgForward">
+      <div class="ok">✓ Forward test starts TODAY. Your prediction is saved to the library and held PENDING until earnings are released — then it auto-resolves and compares your result vs actual.</div>
+      <div id="fwThWrap"><label id="fwThLabel">Threshold</label><input id="fwThreshold" placeholder="optional"/></div>
+      <label>Polymarket URL / slug (optional — also logs the market price)</label>
+      <input id="fwPm" placeholder="https://polymarket.com/event/..."/>
+    </div>
+    <div id="cfgScan" style="display:none">
+      <div class="ok">🛰 Scanning for: <b id="scanTarget"></b>. Only markets that resolve on this are scanned, ranked by edge, auto-logged. ~30–60s.</div>
+      <div id="scanThWrap"><label id="scanThLabel">Threshold</label><input id="scanThreshold" placeholder="optional"/></div>
+    </div>
+    <div class="nav"><button class="btn ghost" data-back="3">◀ BACK</button><button class="btn exec" id="execBtn">▶ EXECUTE</button></div>
+  </div></div>
+
+  <div class="page hidden" id="p5"><div class="card">
+    <h2 class="step">[5/5] READOUT</h2><div class="blurb" id="resHead"></div>
+    <div id="resOut"></div>
+    <div id="intelOut"></div>
+    <div class="nav"><button class="btn ghost" data-back="4">◀ TWEAK</button><button class="btn" id="againBtn">↺ NEW RUN</button></div>
+  </div></div>
+
+  <div class="foot">research only · not financial advice · public data · no auto-trading</div>
+</div>
+
+<div id="sage"><div class="bubble"><div class="name">◈ ORACLE</div><span id="sageText"></span></div><div class="avatar" onclick="document.getElementById('sage').classList.toggle('open')" title="Oracle — click for a tip">🔮</div></div>
+
+<div id="badges">
+  <div id="pumpBadge"><div id="pumpBox"></div></div>
+  <div id="smgBadge"><div id="smgBox"></div></div>
+  <div id="scarBadge">
+    <button class="btn" onclick="rollScar()">◈ SCAR</button>
+    <div id="scarKills"></div>
+  </div>
+</div>
+<div id="scarTab" onclick="toggleCodex()">🪙 GOLDEN LOOT ▸</div>
+<div id="scarCodex">
+  <div class="ttl">🪙 GOLDEN LOOT <span style="float:right;cursor:pointer;color:var(--mut)" onclick="toggleCodex()">✕</span></div>
+  <div class="ln" style="color:var(--mut);font-size:10px;margin-bottom:8px">Your indicator stash. Each indicator scores how to play an earnings read.</div>
+  <div class="ttl" style="color:var(--green);font-size:11px">◈ SCAR — Signal Coherence &amp; Acceleration</div>
+  <div class="ln"><b style="color:var(--text)">Kills = how much to trust this read (0–100)</b>, from signal agreement × track-record stability.</div>
+  <div class="legend">
+    <div class="row"><span><span style="color:var(--green)">●</span> 80–100</span><span>very confident</span></div>
+    <div class="row"><span><span style="color:var(--green)">●</span> 45–79</span><span>solid — tradeable</span></div>
+    <div class="row"><span><span style="color:var(--amber)">●</span> 25–44</span><span>low — size down</span></div>
+    <div class="row"><span><span style="color:var(--red)">●</span> 0–24</span><span>coin-flip — avoid</span></div>
+  </div>
+  <div class="log" id="scarLog"></div>
+  <div class="ttl" style="color:#5cc8ff;font-size:11px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">⚡ PUMP — Pre-earnings Pressure</div>
+  <div class="ln"><b style="color:var(--text)">PUMP = 100·tanh(z·conv/γ)</b>, z = abnormal 5-day run-up ÷ the stock's own expected move. PURE PRICE — no Polymarket. Sign = which way it's leaning into the print; |PUMP| = how stretched vs normal. Big + over-extrapolation ⇒ fade (Kelly). <i>Backtestable.</i></div>
+  <div class="ttl" style="color:var(--amber);font-size:11px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">💰 SMG — Market Edge &amp; Stake</div>
+  <div class="ln"><b style="color:var(--text)">Ψ = net edge per $1</b> = E·trust(SCAR)·uncertainty·regime − friction, then a ½-Kelly stake capped by book depth. Needs a Polymarket price. SCAR says <i>trust</i>; SMG says <i>how much edge &amp; how much to bet</i>.</div>
+  <div class="ln" style="color:var(--amber);font-size:10px;margin-top:6px">⚠ SMG defaults are provisional (EV/Kelly + literature) — not yet fit on realized P&amp;L. Validated on the forward vault as bets resolve. Research only; never auto-trades.</div>
+  <div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+    <button class="btn ghost" style="font-size:11px;padding:7px 12px;width:100%" onclick="checkEdges()">🛰️ CHECK FOR LIVE EDGES</button>
+    <div id="edgeOut" style="margin-top:6px"></div>
+  </div>
+  <div class="ttl" style="color:var(--cyan);font-size:11px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">📋 FORECAST SHEET — the product</div>
+  <div class="ln">Calibrated probabilities for upcoming earnings. This is the one thing here that <b style="color:var(--text)">passes its own test</b>: on resolved bets our Brier beats the market's. It is a <i>forecast</i>, not a trade — being better calibrated than the crowd is not the same as making money against it.</div>
+  <div style="margin-top:8px">
+    <button class="btn ghost" style="font-size:11px;padding:7px 12px;width:100%" onclick="loadForecast()">📋 BUILD FORECAST SHEET</button>
+    <div id="fcOut" style="margin-top:6px"></div>
+  </div>
+  <div class="ttl" style="color:#b48cff;font-size:11px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">🏷️ PAPER MAKER — quote, don't lift</div>
+  <div class="ln">We have always been a <b style="color:var(--text)">taker</b>, paying ~4¢ of spread to chase a ~2.6% edge — the spread is <b style="color:var(--text)">3.1× the edge</b>. This posts fair-value quotes instead and measures what <i>would</i> have filled, above all whether fills arrive precisely when we're wrong (<b style="color:var(--text)">adverse selection</b>). Paper only — no orders, ever.</div>
+  <div style="margin-top:8px">
+    <button class="btn ghost" style="font-size:11px;padding:7px 12px;width:100%" onclick="loadMaker()">🏷️ QUOTE SHEET &amp; FILLS</button>
+    <div id="mkOut" style="margin-top:6px"></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const state={ticker:"AAPL",category:null,outcome:"eps_beat",outcomeLabel:"",needsTh:false,thUnit:"",mode:null,btMode:"calibrate",snapshot_path:null};
+let runs=0,step=1,lastRaw=null;
+
+const SYMS=["AAPL","NVDA","MSFT","TSLA","META","AMZN","GOOGL","JPM","SNAP","NFLX","UBER","PLTR","RIVN","COIN","SHOP"];
+$("#tape").innerHTML=SYMS.concat(SYMS).map(s=>{const up=Math.random()>.5,p=(Math.random()*400+20).toFixed(2),c=(Math.random()*4).toFixed(2);
+  return `<span><span class="sym">${s}</span> ${p} <span class="${up?'up':'dn'}">${up?'▲':'▼'}${c}%</span></span>`;}).join("");
+
+const CATS={
+  earnings:{ico:"💰",name:"EARNINGS",desc:"Beat + by how much",q:"How should we read earnings?",opts:[
+    {t:"Will it beat earnings (EPS consensus)?",outcome:"eps_beat",th:false},
+    {t:"Beat — and by how much? (we estimate the % for you)",outcome:"eps_beat",th:false}]},
+  eps:{ico:"📊",name:"EPS",desc:"Beat by how much",q:"How much will EPS beat by?",opts:[
+    {t:"EPS will beat by a certain % (+ = beats by that much · − = misses by that much)",
+     outcome:"eps_surprise_over",th:true,unit:"% beat (+5 = beats by 5%, −5 = misses by up to 5%)"}]},
+  revenue:{ico:"🏦",name:"REVENUE",desc:"Top line",q:"Which revenue question?",opts:[
+    {t:"Beat revenue consensus",outcome:"revenue_beat",th:false},
+    {t:"Beat revenue by ≥ X%",outcome:"revenue_beat",th:true,unit:"% revenue beat"},
+    {t:"Revenue over $X",outcome:"revenue_over",th:true,unit:"$ (e.g. 115000000000)"}]},
+  stock:{ico:"📈",name:"STOCK",desc:"Price reaction",q:"Stock move?",opts:[
+    {t:"Will the stock go UP after earnings?",outcome:"stock_up",th:false}]}
+};
+$("#cats").innerHTML=Object.entries(CATS).map(([k,c])=>
+  `<div class="pick" data-cat="${k}"><div class="ico">${c.ico}</div><div class="name">${c.name}</div><div class="desc">${c.desc}</div></div>`).join("");
+document.querySelectorAll("[data-cat]").forEach(el=>el.onclick=()=>{
+  state.category=el.dataset.cat;
+  document.querySelectorAll("[data-cat]").forEach(x=>x.classList.remove("sel")); el.classList.add("sel");
+  const c=CATS[state.category]; $("#optQ").textContent=c.q;
+  $("#optList").innerHTML=c.opts.map((o,i)=>`<button class="opt" data-i="${i}">${o.t}</button>`).join("");
+  $("#optBox").classList.remove("hidden"); $("#n2").disabled=true; state.outcomeLabel="";
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel")); b.classList.add("sel");
+    const o=c.opts[+b.dataset.i]; state.outcome=o.outcome; state.needsTh=!!o.th; state.thUnit=o.unit||""; state.outcomeLabel=o.t; $("#n2").disabled=false;});
+});
+
+const LABELS=["TARGET","READ","PLAY","LOAD","RESULT"];
+function drawSteps(){$("#steps").innerHTML=LABELS.map((l,i)=>{const n=i+1,cls=n<step?"done":(n===step?"on":"");
+  const bar=i<LABELS.length-1?`<div class="bar"></div>`:"";return `<div class="node ${cls}"><div class="dot">${n<step?"✓":n}</div>${l}</div>${bar}`;}).join("");}
+function go(n){step=n;[0,1,2,3,4,5].forEach(i=>$("#p"+i).classList.toggle("hidden",i!==n));drawSteps();
+  $("#steps").style.display=(n>=1)?"flex":"none";
+  $("#homeBtn").style.display=(n>=1)?"block":"none";
+  window.scrollTo({top:0,behavior:"smooth"});$("#sage").style.display=(n>=4)?"flex":"none";$("#sage").classList.remove("open");if(n===4)loadTips();
+  const scarOn=(n===4||n===5);
+  $("#scarBadge").style.display=scarOn?"block":"none";
+  $("#scarTab").style.display=scarOn?"block":"none";
+  if(!scarOn){ $("#smgBadge").style.display="none"; $("#pumpBadge").style.display="none"; }  // show only on result
+  $("#scarCodex").style.display="none";          // storage stays minimized until clicked
+  if(n===4){ $("#scarKills").style.display="none"; setupLoad(); }   // LOAD: configure by mode
+}
+function setupLoad(){
+  $("#cfgPredict").style.display=state.mode==="predict"?"block":"none";
+  $("#cfgBacktest").style.display=state.mode==="backtest"?"block":"none";
+  $("#cfgForward").style.display=state.mode==="forward"?"block":"none";
+  $("#cfgScan").style.display=state.mode==="scan"?"block":"none";
+  $("#thWrap").style.display=state.needsTh?"block":"none";
+  $("#thLabel").textContent="Threshold — "+(state.thUnit||"value");
+  // SCAN cfg: show what we're hunting + threshold (if the outcome needs one)
+  if(state.mode==="scan"){
+    $("#scanTarget").textContent=state.outcomeLabel||state.outcome;
+    $("#scanThWrap").style.display=state.needsTh?"block":"none";
+    $("#scanThLabel").textContent="Threshold — "+(state.thUnit||"value");
+  }
+  $("#p4blurb").textContent={predict:"You only set the Polymarket link — everything else is auto-fetched.",backtest:"Pick a backtest mode.",forward:"Logs today's call to the vault.",scan:"Find mispriced markets for what you chose."}[state.mode];
+  const yrAgo=()=>{const dt=new Date();dt.setFullYear(dt.getFullYear()-1);return dt.toISOString().slice(0,10);};
+  if(state.mode==="forward" && $("#ftSince") && !$("#ftSince").value) $("#ftSince").value=yrAgo();
+  if(state.mode==="backtest"){ selectBtMode(state.btMode||"calibrate");
+    if($("#btSince")&&!$("#btSince").value)setLookback(($("#btLookback")&&$("#btLookback").value)||"5");
+    if($("#btUntil")&&!$("#btUntil").value)$("#btUntil").value=new Date().toISOString().slice(0,10); }
+}
+function setLookback(years){
+  const dt=new Date(); dt.setFullYear(dt.getFullYear()-parseInt(years||"5",10));
+  if($("#btSince")) $("#btSince").value=dt.toISOString().slice(0,10);
+}
+function goHome(){ state.snapshot_path=null; $("#scarCodex").style.display="none"; go(0); }
+function toggleCodex(){
+  const c=$("#scarCodex"), t=$("#scarTab");
+  const open=c.style.display==="block";
+  c.style.display=open?"none":"block"; t.style.display=open?"block":"none";
+  if(!open) renderScarLog();
+}
+// Human label for WHAT SCAR is judging (the outcome being tested), not just the ticker.
+function whatTested(o,th){
+  switch(o){
+    case "eps_beat": return "beat EPS consensus";
+    case "eps_surprise_over": return `EPS surprise ≥ ${th!=null&&th!==""?th+"%":"X%"}`;
+    case "revenue_beat": return "beat revenue consensus";
+    case "revenue_over": return `revenue ≥ ${th!=null&&th!==""?"$"+th:"$X"}`;
+    case "stock_up": return "stock up after earnings";
+    default: return o||"this outcome";
+  }
+}
+// ---- FORECAST SHEET (option C) -------------------------------------------------
+// The forecast is the product. The scorecard and the limits render in the SAME block,
+// deliberately: this project's whole failure mode was letting "better calibrated than
+// the market" quietly imply "makes money against the market".
+async function loadForecast(){
+  const box=$("#fcOut"); box.innerHTML='<div class="ln" style="color:var(--mut)">building sheet (scanning live markets)…</div>';
+  try{
+    const d=await (await fetch("/api/forecast_sheet",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({limit:20})})).json();
+    if(d.error){ box.innerHTML=`<div class="ln" style="color:var(--red)">${d.error}</div>`; return; }
+    const s=d.scorecard||{};
+    const beats=s.model_beats_market;
+    let h=`<div class="vsum" style="border:1px solid ${beats?'var(--green)':'var(--amber)'}">
+      <b style="color:${beats?'var(--green)':'var(--amber)'}">FORECAST SCORECARD</b> · ${s.n_resolved_bets||0} resolved bets<br>
+      model Brier <b>${s.model_brier??'–'}</b> vs market <b>${s.market_brier??'–'}</b> → ${beats?'<span style="color:var(--green)">we forecast better than the crowd</span>':'<span style="color:var(--amber)">market is better</span>'}<br>
+      <span style="color:var(--mut)">money: ${s['realized_pnl_per_$1']??'–'}/$1, CI ${JSON.stringify(s.pnl_ci95||[])} — <b style="color:${s.money_edge_proven?'var(--green)':'var(--red)'}">${s.money_edge_proven?'proven':'NOT proven'}</b></span></div>`;
+    h+=`<div class="ln" style="margin:6px 0;color:var(--mut)">${d.claim||''}</div>`;
+    const rows=d.rows||[];
+    if(!rows.length){ h+='<div class="ln" style="color:var(--mut)">no upcoming markets returned by the scan.</div>'; }
+    else{
+      h+=`<div class="term" style="margin-top:6px"><table><tr><td class="k">TICK</td><td class="k">DATE</td><td class="k">OURS</td><td class="k">MKT</td><td class="k">SCAR</td><td class="k">TRADEABLE?</td></tr>`;
+      rows.forEach(r=>{
+        const p=r.our_probability!=null?Math.round(r.our_probability*100)+'%':'–';
+        const q=r.market_probability!=null?Math.round(r.market_probability*100)+'%':'–';
+        const t=r.tradeable?'<span style="color:var(--green)">yes</span>'
+                 :`<span style="color:var(--mut)" title="${String(r.not_tradeable_because||'').replace(/"/g,'')}">no</span>`;
+        h+=`<tr><td class="v">${r.ticker||''}</td><td class="v">${r.earnings_date||'–'}</td><td class="v"><b>${p}</b></td><td class="v">${q}</td><td class="v">${r.scar??'–'}</td><td class="v">${t}</td></tr>`;
+      });
+      h+=`</table></div>`;
+    }
+    h+=`<div class="ln" style="margin-top:8px;color:var(--amber);font-size:10px"><b>LIMITS</b><br>${(d.limits||[]).map(x=>'• '+x).join('<br>')}</div>`;
+    box.innerHTML=h;
+  }catch(e){ box.innerHTML=`<div class="ln" style="color:var(--red)">${e}</div>`; }
+}
+
+// ---- PAPER MAKER (option A) ------------------------------------------------------
+async function loadMaker(){
+  const box=$("#mkOut"); box.innerHTML='<div class="ln" style="color:var(--mut)">quoting live books…</div>';
+  try{
+    const d=await (await fetch("/api/maker",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({refresh:true,limit:25})})).json();
+    if(d.error){ box.innerHTML=`<div class="ln" style="color:var(--red)">${d.error}</div>`; return; }
+    const s=d.score||{}, st=(s.assessment||{}).stats||{};
+    const adverse=String(s.adverse_selection||'');
+    const bad=adverse.startsWith('FILLS RESOLVE BADLY');
+    let h=`<div class="vsum"><b style="color:#b48cff">PAPER MAKER</b> · ${s.quotes_logged||0} quotes · ${s.filled||0} filled (rate ${s.fill_rate??'–'}) · mean spread earned <b>${s.mean_spread_earned??'–'}</b><br>
+      <span style="color:var(--mut)">resolved fills ${s.resolved_fills||0}${st.n?` · P&L ${st.mean}/$1, CI ${JSON.stringify(st.ci95||[])}, needs ~${(st.n_needed||0).toLocaleString()}`:''}</span></div>`;
+    h+=`<div class="ln" style="margin:6px 0;color:${bad?'var(--red)':'var(--amber)'}"><b>ADVERSE SELECTION:</b> ${adverse}</div>`;
+    const sheet=d.sheet||[];
+    if(sheet.length){
+      h+=`<div class="term" style="margin-top:6px"><table><tr><td class="k">TICK</td><td class="k">SIDE</td><td class="k">POST</td><td class="k">COST IF FILLED</td><td class="k">EDGE</td><td class="k">SPREAD</td></tr>`;
+      sheet.forEach(q=>{
+        const post=q.our_bid?`bid ${q.our_bid}`:`ask ${q.our_ask}`;
+        h+=`<tr><td class="v">${q.ticker}</td><td class="v">${q.side}</td><td class="v">${post}</td><td class="v">${q.contract_cost_if_filled}</td><td class="v" style="color:var(--green)">${(q.edge_vs_fair*100).toFixed(1)}%</td><td class="v">${q.book_spread}</td></tr>`;
+      });
+      h+=`</table></div>`;
+    } else {
+      h+=`<div class="ln" style="color:var(--mut)">No quotable markets right now — we only quote FAVOURITE purchases (the contract we'd hold costs ≥0.50) in books with ≥$25 of real size and ≥3¢ of spread.</div>`;
+    }
+    h+=`<div class="ln" style="margin-top:8px;color:var(--mut);font-size:10px">${s.honest_note||''}</div>`;
+    box.innerHTML=h;
+  }catch(e){ box.innerHTML=`<div class="ln" style="color:var(--red)">${e}</div>`; }
+}
+
+async function checkEdges(){
+  const box=$("#edgeOut"); box.innerHTML='<div class="ln" style="color:var(--mut)">checking…</div>';
+  try{
+    const d=await (await fetch("/api/edge_status")).json();
+    let h="";
+    // GUARD: if flagged edges aren't forward-proven (or are net-losing), say so loudly first.
+    if(d.guard && d.guard.tradeable_now===false && d.guard.warning){
+      h+=`<div class="ln" style="color:var(--red);font-weight:700;border:1px solid var(--red);padding:5px;border-radius:6px">${d.guard.warning}</div>`;
+    }
+    if(d.forward_done){ h+=`<div class="ln" style="color:var(--green);font-weight:700">✅ ALL FORWARD TESTS DONE — lock back on.</div>`; }
+    if(d.fit_ready){ h+=`<div class="ln" style="color:var(--amber);font-weight:700">🔧 ${d.fit_ready.split(':')[0]||'≥30 bets'} — ready to fit SMG together.</div>`; }
+    if(d.last_daily){ const m=d.last_daily; h+=`<div class="ln" style="color:var(--mut);font-size:10px">last daily: ${m.date||''} · bt acc ${m.bt_acc||'?'} · SCAR thr ${m.scar_threshold||'?'} · resolved ${m.resolved||0}/pending ${m.pending||0} · bets ${m.bets||0}</div>`; }
+    if(d.has_edge){
+      h+=`<div class="ln" style="color:var(--green);font-weight:700">⚡ ${d.edges.length} LIVE EDGE(S) CAUGHT</div>`;
+      h+=d.edges.map(e=>`<div class="ln" style="color:var(--text);font-size:10px">${e}</div>`).join("");
+    } else {
+      h+=`<div class="ln" style="color:var(--mut)">No tradeable edge right now — books too thin or edge below cost. (Honest: this is the normal state.)</div>`;
+    }
+    if(d.has_fade){
+      h+=`<div class="ln" style="color:var(--green);font-weight:700;margin-top:6px">🎯 ${d.fade_beat.length} FADE-THE-BEAT (market says beat, we say MISS)</div>`;
+      h+=d.fade_beat.slice(0,6).map(e=>`<div class="ln" style="color:var(--text);font-size:10px">${e}</div>`).join("");
+      h+=`<div class="ln" style="color:var(--amber);font-size:9px">Tightened: needs ≥2 bearish confirmers + market ≥70% → ~33% real-miss precision (vs 14% base) = +EV when the crowd's overconfident. Still high-variance, unproven forward — size small.</div>`;
+    }
+    if(d.has_potential){
+      h+=`<div class="ln" style="color:var(--amber);font-weight:700;margin-top:6px">👀 ${d.potential.length} POTENTIAL (unproven divergence — look, don't bet)</div>`;
+      h+=d.potential.slice(0,6).map(e=>`<div class="ln" style="color:var(--mut);font-size:10px">${e}</div>`).join("");
+    }
+    // Persistent EDGE BOOK — all still-active edges/potentials seen (auto-expire after the print).
+    const bk=d.edge_book||{real:[],potential:[]};
+    if((bk.real&&bk.real.length)||(bk.potential&&bk.potential.length)){
+      const row=(r,c)=>`<div class="row" style="font-size:10px"><span>${r.fade_beat?'🎯 ':''}<a href="${r.url||'#'}" target="_blank" style="color:${c}">${r.ticker}</a> ${r.outcome} ${r.side||''}</span><span>${r.model_prob!=null?Math.round(r.model_prob*100)+'%':'–'} vs ${r.market_prob!=null?Math.round(r.market_prob*100)+'%':'–'} · SCAR ${r.scar??'–'} · ${r.earnings_date||''}</span></div>`;
+      h+=`<div class="ttl" style="color:#5cc8ff;font-size:11px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">📓 EDGE BOOK — active: ${bk.n_real||0} real / ${bk.n_potential||0} potential</div>`;
+      if(bk.real&&bk.real.length){ h+=`<div class="ln" style="color:var(--green);font-size:10px">REAL</div>`+bk.real.map(r=>row(r,'var(--green)')).join(""); }
+      if(bk.potential&&bk.potential.length){ h+=`<div class="ln" style="color:var(--amber);font-size:10px;margin-top:4px">POTENTIAL (unproven)</div>`+bk.potential.slice(0,10).map(r=>row(r,'var(--amber)')).join(""); }
+      h+=`<div class="ln" style="color:var(--mut);font-size:9px;margin-top:4px">Auto-expires each entry once its earnings date passes.</div>`;
+    }
+    if(d.landscape&&d.landscape.length){
+      h+=`<div class="ln" style="color:var(--amber);font-size:10px;margin-top:6px">Recent weekly scans:</div>`;
+      h+=d.landscape.slice(-6).reverse().map(r=>`<div class="row" style="font-size:10px"><span>${(r.scanned_at||'').slice(0,10)}</span><span>${r.markets||0} mkts · ${r.tradeable||0} tradeable</span></div>`).join("");
+    } else if(!d.has_edge){
+      h+=`<div class="ln" style="color:var(--mut);font-size:10px;margin-top:4px">No weekly scans logged yet (runs Mon 8am, or run a SCAN now).</div>`;
+    }
+    box.innerHTML=h;
+  }catch(e){ box.innerHTML=`<div class="ln" style="color:var(--red)">${e}</div>`; }
+}
+function closeScar(){ $("#scarKills").style.display="none"; }
+const scarX=`<span class="scarX" onclick="closeScar()" title="close">✕</span>`;
+// Results page: SCAR for the exact thing tested, auto-filled (no re-fetch).
+function showScarResult(raw){
+  const box=$("#scarKills");
+  if(!raw || raw.scar_predictability==null){ box.style.display="none"; return; }
+  box.style.display="block";
+  const k=raw.scar_predictability, [t,c]=tier(k);
+  const why=(raw.scar_reasons&&raw.scar_reasons.length)?raw.scar_reasons.join("; "):"signals coherent — trust the read";
+  box.innerHTML=`<div class="lab">${scarX}${raw.ticker} · SCAR KILLS</div>`
+    +`<div class="testing">testing: will ${whatTested(raw.outcome,raw.threshold)}</div>`
+    +`<div class="k" style="color:${c}">0</div><div class="tier" style="color:${c}">${t}</div><div class="why">${why}</div>`;
+  const el=box.querySelector(".k"); let v=0;
+  const iv=setInterval(()=>{v+=Math.max(1,Math.round(k/20));if(v>=k){v=k;clearInterval(iv);}el.textContent=v;},28);
+  const log=JSON.parse(localStorage.getItem("scarLog")||"[]");
+  if(!log.length||log[0].tk!==raw.ticker||log[0].kills!==k){
+    log.unshift({tk:raw.ticker,kills:k,t:new Date().toISOString().slice(5,10)});
+    localStorage.setItem("scarLog",JSON.stringify(log.slice(0,30)));
+  }
+}
+function tier(k){ return k>=80?["VERY CONFIDENT","var(--green)"]:k>=45?["SOLID READ","var(--green)"]:k>=25?["LOW — size down","var(--amber)"]:["COIN-FLIP — avoid","var(--red)"]; }
+// Results page: SMG edge/stake for the exact thing tested (needs a Polymarket price).
+function showSmgResult(raw){
+  const box=$("#smgBadge"), inner=$("#smgBox");
+  const p=raw&&raw.smg;
+  if(!p || !p.active){ box.style.display="none"; return; }
+  box.style.display="block";
+  const live=p.live, col=live?"var(--green)":"var(--mut)";
+  const psi=(p.psi*100), stake=(p.stake_fraction*100);
+  const c=p.components||{};
+  const comp=`E ${(c.E_gross*100||0).toFixed(0)}% × trust ${c.w_K} × unc ${c.u_sigma} × regime ${c.r_V} − fric ${(c.friction*100||0).toFixed(1)}%`;
+  const sub=live?`${p.side} · stake ${stake.toFixed(1)}% of bankroll${p.max_usd?` (≤$${Math.round(p.max_usd).toLocaleString()})`:""}`:"SKIP — no live edge";
+  inner.innerHTML=`<div class="lab"><span class="bx" onclick="document.getElementById('smgBadge').style.display='none'">✕</span>💰 SMG — MARKET EDGE Ψ</div><div class="psi" style="color:${col}">${psi>=0?"+":""}${psi.toFixed(1)}%<span style="font-size:12px">/$1</span></div>`
+    +`<div class="sub" style="color:${col}">${sub}</div><div class="comp">${comp}</div>`
+    +`<div class="why">${(p.reasons&&p.reasons[0])||""}</div>`
+    +`<div class="why" style="color:var(--amber)">provisional — not yet validated on realized P&amp;L</div>`;
+}
+// Results page: PUMP pre-earnings price pressure (pure stock, no Polymarket).
+function showPumpResult(raw){
+  const box=$("#pumpBadge"), inner=$("#pumpBox");
+  const p=raw&&raw.pump;
+  if(!p || !p.active){ box.style.display="none"; return; }
+  box.style.display="block";
+  const v=p.pump, up=v>0;
+  const col=Math.abs(v)>=40?(up?"var(--green)":"var(--red)"):"#5cc8ff";
+  const c=p.components||{};
+  const comp=`run-up ${(c.abn_return_5d*100||0).toFixed(1)}% = ${c.run_up_in_EMs} expected-moves × conv ${c.conviction}`;
+  inner.innerHTML=`<div class="lab"><span class="bx" onclick="document.getElementById('pumpBadge').style.display='none'">✕</span>⚡ PUMP — PRE-EARNINGS PRESSURE</div>`
+    +`<div class="psi" style="color:${col}">${v>=0?"+":""}${v.toFixed(0)}<span style="font-size:12px">/100 ${p.direction}</span></div>`
+    +`<div class="sub">${p.stretched?"STRETCHED":"normal"} run-up</div><div class="comp">${comp}</div>`
+    +`<div class="why">${(p.reasons&&p.reasons[0])||""}</div>`;
+}
+async function rollScar(){
+  const box=$("#scarKills"); box.style.display="block";
+  box.innerHTML='<div class="lab">SCANNING…</div>';
+  try{
+    const d=await post("/api/scar",{ticker:state.ticker});
+    if(d.error||d.kills==null){ box.innerHTML=`<div class="why">${d.error||'no SCAR data'}</div>`; return; }
+    const [t,c]=tier(d.kills);
+    box.innerHTML=`<div class="lab">${scarX}${state.ticker} · SCAR KILLS</div>`
+      +`<div class="testing">testing: will ${whatTested(state.outcome,state.threshold)}</div>`
+      +`<div class="k" style="color:${c}">0</div><div class="tier" style="color:${c}">${t}</div>`
+      +(d.reasons&&d.reasons.length?`<div class="why">${d.reasons.join("; ")}</div>`:`<div class="why">signals coherent — trust the read</div>`);
+    // count-up
+    const el=box.querySelector(".k"); let v=0; const target=d.kills;
+    const iv=setInterval(()=>{ v+=Math.max(1,Math.round(target/20)); if(v>=target){v=target;clearInterval(iv);} el.textContent=v; },28);
+    // store
+    const log=JSON.parse(localStorage.getItem("scarLog")||"[]");
+    log.unshift({tk:state.ticker,kills:d.kills,t:new Date().toISOString().slice(5,10)});
+    localStorage.setItem("scarLog",JSON.stringify(log.slice(0,30)));
+    renderScarLog();
+  }catch(e){ box.innerHTML=`<div class="why">${e}</div>`; }
+}
+function renderScarLog(){
+  const log=JSON.parse(localStorage.getItem("scarLog")||"[]");
+  const el=$("#scarLog"); if(!el) return;
+  if(!log.length){ el.innerHTML='<div class="ln">No SCAR checks yet — click ◈ SCAR.</div>'; return; }
+  const avg=Math.round(log.reduce((a,b)=>a+b.kills,0)/log.length);
+  const best=log.reduce((a,b)=>b.kills>a.kills?b:a), worst=log.reduce((a,b)=>b.kills<a.kills?b:a);
+  const rows=log.slice(0,5).map(r=>{const c=r.kills>=45?'var(--green)':'var(--amber)';
+    return `<div class="row"><span>${r.tk} <span style="color:var(--mut)">${r.t}</span></span><span style="color:${c}">${r.kills}</span></div>`;}).join("");
+  el.innerHTML=`<div class="ln">checks <b style="color:var(--text)">${log.length}</b> · avg <b style="color:var(--text)">${avg}</b> · `
+    +`most trusted <b style="color:var(--green)">${best.tk} ${best.kills}</b> · avoid <b style="color:var(--amber)">${worst.tk} ${worst.kills}</b></div>`
+    +`<div style="margin-top:4px">${rows}</div>`;
+}
+document.querySelectorAll("[data-home]").forEach(b=>b.onclick=async()=>{
+  if(b.dataset.home==="stock"){ go(1); }
+  else if(b.dataset.home==="vault"){
+    go(5); $("#resHead").textContent="FORWARD TEST VAULT";
+    $("#resOut").innerHTML='<div class="loading">loading vault</div>'; $("#intelOut").innerHTML="";
+    const res=await post("/api/forward",{}); $("#resOut").innerHTML=renderForward(res);
+  }
+  else { state.mode="scan"; go(2); }   // SCAN: pick what we're hunting (READ) first
+});
+
+function floaty(x,y,t){const f=document.createElement("div");f.className="float";f.textContent=t;f.style.left=x+"px";f.style.top=y+"px";document.body.appendChild(f);setTimeout(()=>f.remove(),1000);}
+document.addEventListener("click",e=>{if(e.target.closest(".btn,.pick,.opt"))floaty(e.clientX-8,e.clientY-10,"+1");});
+
+let typeTimer=null;
+function sage(html){clearInterval(typeTimer);const el=$("#sageText");const span=document.createElement("span");span.innerHTML=html;const full=span.innerHTML;let i=0;el.innerHTML="";
+  typeTimer=setInterval(()=>{i+=2;el.innerHTML=full.slice(0,i);if(i>=full.length)clearInterval(typeTimer);},12);}
+function loadTips(){
+  if(state.mode==="predict") sage("I <b>auto-fetch all market data</b> — price, surprises, Kelly over-extrapolation, options, news. You only add the <b>Polymarket link</b> (for the edge). After the run I'll list anything else that would sharpen it, scored 1–100.");
+  else if(state.mode==="backtest") sage("Run the <b>full basket</b> for a real test — a single mega-cap almost always beats, so it can't beat the baseline.");
+  else sage("Forward test logs <b>today's</b> prediction to the <b>library</b> and holds it <b>PENDING</b> until earnings drop — then it auto-resolves and shows your result vs actual + the difference. Hit EXECUTE to log + view the library.");
+}
+
+$("#n1").onclick=()=>{state.ticker=$("#ticker").value.trim();if(!state.ticker){$("#ticker").focus();return;}go(2);};
+$("#n2").onclick=()=>{if(!state.outcomeLabel)return; go(state.mode==="scan"?4:3);};  // scan skips PLAY
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>go(+b.dataset.back));
+document.querySelectorAll("[data-mode]").forEach(m=>m.onclick=()=>{
+  state.mode=m.dataset.mode;
+  document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("sel")); m.classList.add("sel");
+  if($("#fwThWrap")){ $("#fwThWrap").style.display=state.needsTh?"block":"none"; $("#fwThLabel").textContent="Threshold — "+(state.thUnit||"value"); }
+  setTimeout(()=>go(4),160);   // go(4) -> setupLoad() configures the LOAD page by mode
+});
+
+function selectBtMode(bt){
+  state.btMode=bt;
+  document.querySelectorAll("[data-bt]").forEach(x=>x.classList.toggle("sel",x.dataset.bt===bt));
+  $("#btCalibCfg").style.display=bt==="calibrate"?"block":"none";
+  $("#btWindowCfg").style.display=bt==="window"?"block":"none";
+  $("#btReactionCfg").style.display=bt==="reaction"?"block":"none";
+}
+document.querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>selectBtMode(b.dataset.bt));
+
+async function post(u,b){const r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});return r.json();}
+const HL=new Set(["Model probability","Polymarket implied","Q3 net edge vs market"]);
+function renderRows(rows){return `<div class="term"><table>`+rows.map(([k,v])=>{
+  const cls=HL.has(k)?"hl":(k==="Recommendation"?"rec":"");
+  return `<tr class="${cls}"><td class="k">${k}</td><td class="v">${(v??"").toString().replace(/</g,"&lt;")}</td></tr>`;}).join("")+`</table></div>`;}
+
+// fetch + render Polymarket candidates into a container; onPick(slug) on click
+async function suggestMarkets(container, onPick){
+  container.innerHTML='<div class="suggesting">searching Polymarket…</div>';
+  try{
+    const d=await post("/api/pm_search",{ticker:state.ticker});
+    const cs=d.candidates||[];
+    if(!cs.length){container.innerHTML='<div class="w">No open Polymarket markets found for this ticker. Paste a URL manually.</div>';return;}
+    window._cands=cs;
+    container.innerHTML=cs.map((c,i)=>{
+      const yp=(c.yes_price!=null)?`<span class="yp">${Math.round(c.yes_price*100)}%</span> · `:"";
+      const vol=c.volume?`vol $${Math.round(c.volume).toLocaleString()}`:"";
+      const inf=(c.inferred&&c.inferred.outcome)?` · auto: ${c.inferred.outcome}`:"";
+      return `<button class="cand" data-i="${i}"><div class="pq">${(c.question||c.event_title||'').replace(/</g,'&lt;')}</div><div class="pm">${yp}${vol}${c.closed?' · CLOSED':''}${inf}</div></button>`;
+    }).join("");
+    container.querySelectorAll(".cand").forEach(b=>b.onclick=()=>{
+      const c=window._cands[+b.dataset.i];
+      // auto-pick outcome + threshold from the market's wording so we test the same thing
+      const inf=c.inferred||{};
+      if(inf.outcome){ state.outcome=inf.outcome; state.outcomeLabel=inf.label||inf.outcome;
+        state.needsTh=inf.threshold!=null; state.thUnit="(from market)";
+        if(inf.threshold!=null){ const t=$("#threshold"); if(t) t.value=inf.threshold; }
+      }
+      onPick(decodeURIComponent(c.slug));
+    });
+  }catch(e){container.innerHTML=`<div class="err">${e}</div>`;}
+}
+
+function sortScan(key){ window._scanSort=key; if(window._scanData) $("#resOut").innerHTML=renderScan(window._scanData); }
+function renderScan(d){
+  window._scanData=d;
+  const key=window._scanSort||"edge";
+  let rows=(d.rows||[]).slice();
+  const num=(v,def)=>(v==null?def:v);
+  if(key==="prob") rows.sort((a,b)=>num(b.model_prob,-9)-num(a.model_prob,-9));
+  else if(key==="date") rows.sort((a,b)=>String(a.earnings_date||"9999").localeCompare(String(b.earnings_date||"9999")));
+  // Default sort = fillable first, then conviction-weighted EXPECTED DOLLAR PROFIT.
+  // Sorting by net_edge (a paper fraction) is what floated unfillable 3-cent books to the
+  // top of this table, and those fed the vault the fake P&L retracted on 2026-11-03.
+  else rows.sort((a,b)=>(((a.paper_only?0:1)-(b.paper_only?0:1)) || (num(b.edge_quality,-9)-num(a.edge_quality,-9)) || (num(b.net_edge,-9)-num(a.net_edge,-9))));
+  const sel=(k,l)=>`<option value="${k}"${key===k?" selected":""}>${l}</option>`;
+  const trustOnly = window._scanTrust!==false;
+  const sorter=`<div style="margin:8px 0"><label style="display:inline">SORT BY</label> <select style="width:auto;display:inline-block" onchange="sortScan(this.value)">${sel("edge","Biggest edge")}${sel("prob","Highest probability")}${sel("date","Earnings date (first→last)")}</select>
+    &nbsp;&nbsp;<label class="chk" style="display:inline"><input type="checkbox" ${trustOnly?'checked':''} onchange="window._scanTrust=this.checked;sortScan(window._scanSort||'edge')"/> trustworthy only (SCAR ≥45)</label></div>`;
+  const g=d.guard||{};
+  const guardWarn=(g && g.tradeable_now===false && g.warning)
+    ? `<div class="vsum" style="border:1px solid var(--red);color:var(--red);margin-bottom:8px">${g.warning}</div>` : "";
+  // When not yet forward-proven, DON'T call them "tradeable" — call them flagged/unproven.
+  const label=(g && g.tradeable_now) ? "tradeable (edge survives liquidity)" : "flagged (executable but NOT proven — see warning)";
+  let head=guardWarn+`<div class="vsum">SCAN · markets <b>${d.scanned||0}</b> · ${label} <b style="color:${(g&&g.tradeable_now)?'var(--green)':'var(--amber)'}">${d.tradeable||0}</b> · all auto-logged to vault · <span style="color:var(--cyan)">click a row for the deep dive ▶</span></div>${sorter}`;
+  if(trustOnly) rows=rows.filter(r=>r.trustworthy);
+  window._scanView=rows;  // clicks index into the SORTED+FILTERED view
+  if(!rows.length){ window._scanHtml=`${head}<div class="hint" style="margin-top:10px">No ${trustOnly?'trustworthy (SCAR≥45, executable) ':''}edges right now. Uncheck "trustworthy only" to see all scanned markets.</div>`; return window._scanHtml; }
+  const body=rows.map((r,i)=>{
+    const mp=r.model_prob!=null?Math.round(r.model_prob*100)+'%':'–';
+    const qp=r.market_prob!=null?Math.round(r.market_prob*100)+'%':'–';
+    const ne=r.net_edge!=null?(r.net_edge*100).toFixed(0)+'%':'–';
+    const xe=r.executable_edge!=null?(r.executable_edge*100).toFixed(0)+'%':'–';
+    const mx=r.max_usd?`$${Math.round(r.max_usd).toLocaleString()}`:'$0';
+    const ep=(r.expected_profit_usd!=null)?`$${Math.round(r.expected_profit_usd).toLocaleString()}`:'–';
+    const paper=r.paper_only?`<span style="color:var(--amber)" title="${String(r.fill_reason||'not fillable').replace(/"/g,'')}">PAPER</span>`:`<span style="color:var(--green)">FILL</span>`;
+    // Cost of the contract we'd BUY (YES costs q, NO costs 1-q). A NO bet on a 0.80 market
+    // is a 0.20 longshot purchase — the zone that loses >60% in the 46k-contract Kalshi study.
+    const cc=r.contract_cost!=null?r.contract_cost.toFixed(2):'–';
+    const ccCol=(r.contract_cost==null)?'var(--mut)':(r.is_deep_longshot?'var(--red)':(r.is_longshot?'var(--amber)':'var(--green)'));
+    const ccTip=(r.contract_cost==null)?'no side priced (no edge computed for this market)'
+               :(r.is_deep_longshot?'deep longshot (<10c): loses >60% on average — never recommended'
+               :(r.is_longshot?'longshot purchase (<50c): favorite-longshot-bias zone, needs a far larger sample'
+               :'favorite purchase (>=50c): the low-variance, positive-return zone'));
+    const col=r.trustworthy?'var(--green)':'var(--mut)';
+    const pr=r.predictability!=null?`${r.predictability}`:'–';
+    const prc=(r.predictability||0)>=45?'var(--green)':'var(--amber)';
+    return `<tr style="cursor:pointer" onclick="scanDetail(${i})"><td class="v" style="color:var(--cyan)">${i+1} ▸</td><td class="v">${r.ticker}</td><td class="v" style="max-width:160px">${(r.question||'').slice(0,42)}</td><td class="v">${r.earnings_date||'–'}</td><td class="v">${mp}</td><td class="v">${qp}</td><td class="v" style="color:${col}">${xe}</td><td class="v">${mx}</td><td class="v">${ep}</td><td class="v" style="color:${ccCol}" title="${ccTip}">${cc}</td><td class="v">${paper}</td><td class="v" style="color:${prc}">${pr}</td></tr>`;
+  }).join("");
+  window._scanHtml=`${head}<div class="term" style="margin-top:10px"><table>
+    <tr><td class="k">#</td><td class="k">TICK</td><td class="k">MARKET</td><td class="k">EARNINGS</td><td class="k">MODEL</td><td class="k">MKT</td><td class="k">EXEC</td><td class="k">MAX $</td><td class="k">E[$]</td><td class="k">COST</td><td class="k">FILL?</td><td class="k">SCAR</td></tr>${body}</table></div>
+    <div class="hint" style="margin-top:8px">EXEC walks the real order book; MAX $ = deployable before the edge is eaten; <b>E[$] = expected dollar profit at that size</b> — rows are ranked on this, because a 40% edge on a $50 book is worth less than a 3% edge on $5,000.
+    <b>COST</b> = price of the contract we'd BUY (YES costs q, NO costs 1−q), coloured green ≥0.50 / amber &lt;0.50 / red &lt;0.10. A NO bet on a 0.80 market is a <b>0.20 longshot purchase</b>, not a contrarian call on a favorite — and across 46,282 Kalshi contracts, buyers under 10¢ lose over 60% while contracts over 50¢ earn a small positive return. Our own vault matches: win rate runs 0.10 at &lt;10¢ up to 0.83 at &gt;70¢.
+    <b>FILL?</b> PAPER = cannot actually be traded — hover for why (no edge at the price you'd pay, no size, or a phantom price). A PAPER row is a curiosity, never a bet. Click any row ▸ for the full breakdown.</div>`;
+  return window._scanHtml;
+}
+function showScan(){ if(window._scanHtml) $("#resOut").innerHTML=window._scanHtml; }
+function scanDetail(i){
+  const r=(window._scanView)?window._scanView[i]:null;
+  if(r){ $("#resOut").innerHTML=renderScanDetail(r,i);
+    showScarResult({ticker:r.ticker, scar_predictability:r.predictability, scar_reasons:[], outcome:r.outcome, threshold:r.threshold});
+    showSmgResult(r); showPumpResult(r); }
+}
+function renderScanDetail(r,i){
+  const back=`<button class="btn ghost" onclick="showScan()" style="font-size:12px;padding:8px 14px;margin-bottom:10px">◀ back to scan</button>`;
+  const head=`<div class="vsum">DEEP DIVE #${i+1} · <b>${r.ticker}</b> — ${(r.question||'').replace(/</g,'&lt;')}</div>`;
+  const link=r.url?`<div style="margin:8px 0"><a href="${r.url}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:none">↗ Open this market on Polymarket</a> <span class="hint">(slug: ${r.slug})</span></div>`:`<div class="hint" style="margin:8px 0">No direct market link available.</div>`;
+  const vaultBtn=`<div style="margin:10px 0"><button class="btn" id="ddVault">➕ ADD TO FORWARD TEST VAULT</button><div id="ddVaultOut"></div></div>`;
+  const tbl=renderRows(r.report_rows||[]);
+  // recommendations: confidently say none needed, or list what would help.
+  const recs=(r.recommendations||[]).filter(x=>x.importance>=31);
+  let improve;
+  if(!recs.length){
+    improve=`<div class="ok" style="margin-top:12px">✓ Model has full signal coverage for this one — no additional information would meaningfully change the estimate. (Only thing that moves it now: the actual earnings result.)</div>`;
+  } else {
+    const items=recs.map(x=>`<div class="rec"><div class="badge b-${x.band}">${x.importance}<span class="lab">${x.band}</span></div><div><div class="l">${x.label}</div><div class="w">${x.why}</div></div></div>`).join("");
+    improve=`<div class="intel" style="margin-top:12px"><div class="it">◈ WHAT WOULD MAKE THIS MORE ACCURATE (importance 1–100)</div>${items}</div>`;
+  }
+  // add-info area + re-run
+  const addinfo=`<div class="vsum" style="margin-top:12px">ADD YOUR OWN INFO → re-run for a sharper read</div>
+    <div class="row2">
+      <div><label>Earnings date (override)</label><div style="display:flex;gap:8px"><input id="ddDate" placeholder="YYYY-MM-DD"/><button class="btn ghost" id="ddScan" style="font-size:11px;padding:9px 12px">🌐</button></div></div>
+      <div><label>Snapshot CSV (Kelly)</label><input type="file" id="ddSnap" accept=".csv"/></div>
+    </div>
+    <label>Notes (logged with this entry)</label><input id="ddNotes" placeholder="e.g. management guided up on the last call"/>
+    <button class="btn" id="ddRerun" style="margin-top:10px">↻ RE-RUN ${r.ticker} WITH THIS INFO</button>
+    <div id="ddOut"></div>`;
+  setTimeout(()=>{
+    const sb=$("#ddScan"); if(sb) sb.onclick=async()=>{const dt=await scanEarningsDate(null);if(dt&&$("#ddDate"))$("#ddDate").value=dt;};
+    const rb=$("#ddRerun"); if(rb) rb.onclick=()=>rerunDetail(r,i);
+    const vb=$("#ddVault"); if(vb) vb.onclick=()=>addToVault(r);
+  },0);
+  return back+head+link+vaultBtn+tbl+bottomLine(r)+improve+addinfo;
+}
+async function addToVault(r){
+  const out=$("#ddVaultOut"); if(out) out.innerHTML='<div class="suggesting">saving to vault…</div>';
+  const res=await post("/api/forward_log",{ticker:r.ticker,outcome:r.outcome,
+    threshold:r.threshold,polymarket_url:r.slug});
+  if(res.error||(res.entry&&res.entry.error)){ if(out) out.innerHTML=`<div class="err">${res.error||res.entry.error}</div>`; return; }
+  const e=res.entry||{}; const lib=res.library&&res.library.summary?res.library.summary:{};
+  if(out) out.innerHTML=`<div class="ok">✓ Added ${e.ticker} · ${e.outcome} to the forward vault — your result ${e.model_prob!=null?Math.round(e.model_prob*100)+'%':'–'}, held PENDING until ${e.earnings_date||'earnings'}. It auto-resolves after the print. Vault now: ${lib.logged||0} logged / ${lib.pending||0} pending. (See it in START → CHOOSE A STOCK → FORWARD.)</div>`;
+}
+async function rerunDetail(r,i){
+  $("#ddOut").innerHTML='<div class="loading">re-running</div>';
+  let snap=null; const f=$("#ddSnap")?$("#ddSnap").files[0]:null;
+  if(f){const fd=new FormData();fd.append("file",f);const up=await(await fetch("/api/upload",{method:"POST",body:fd})).json();snap=up.path||null;}
+  const res=await post("/api/predict",{ticker:r.ticker,outcome:r.outcome,threshold:r.threshold,
+    polymarket_url:r.slug,snapshot_path:snap,earnings_date:($("#ddDate")?$("#ddDate").value.trim():"")});
+  if(res.error){$("#ddOut").innerHTML=`<div class="err">${res.error}</div>`;return;}
+  // Re-render the WHOLE deep dive with fresh data so the readout + "what would help" both refresh.
+  const r2=Object.assign({},r,{report_rows:res.rows,recommendations:(res.raw||{}).recommendations||[],
+    model_prob:(res.raw||{}).model_prob});
+  if(window._scanView) window._scanView[i]=r2;
+  $("#resOut").innerHTML=renderScanDetail(r2,i);
+  $("#ddOut").innerHTML=`<div class="ok">✓ Re-run complete with your info — readout and recommendations updated above.</div>`;
+}
+
+function renderReaction(d){
+  if(!d.n) return `<div class="hint">${d.note||'no events'}</div>`;
+  const beat=d.beats_baseline_brier;
+  const kc=d.kelly_extret_vs_move_corr;
+  let head=`<div class="vsum">REACTION (post-earnings move) · events <b>${d.n}</b><br>`
+    +`stock_up accuracy <b>${Math.round(d.accuracy*100)}%</b> · Brier <b>${d.brier}</b> vs baseline <b>${d.baseline_brier}</b> (up-rate ${Math.round(d.baseline_up_rate*100)}%) `
+    +(beat?`<b style="color:var(--green)">beats baseline</b>`:`<span style="color:var(--amber)">does NOT beat baseline</span>`)+`<br>`
+    +`Kelly test — ExtRet vs realized move corr <b style="color:${kc!=null&&kc<0?'var(--green)':'var(--red)'}">${kc}</b> `
+    +(d.kelly_reversal_holds?`(reversal direction holds, but check strength)`:`(reversal NOT seen)`)+`</div>`;
+  const body=(d.events||[]).slice(0,40).map(e=>{
+    const up=e.actual_up?`<span style="color:var(--green)">UP</span>`:`<span style="color:var(--red)">DOWN</span>`;
+    return `<tr><td class="v">${e.period}</td><td class="v">${e.ticker}</td><td class="v">${Math.round(e.stock_up_prob*100)}%</td><td class="v">${up} ${(e.post_move*100).toFixed(1)}%</td><td class="v">${e.ext_ret!=null?(e.ext_ret*100).toFixed(1)+'%':'–'}</td></tr>`;
+  }).join("");
+  return `${head}<div class="term" style="margin-top:10px"><table>
+    <tr><td class="k">EARNINGS</td><td class="k">TICKER</td><td class="k">MODEL P(up)</td><td class="k">ACTUAL MOVE</td><td class="k">KELLY ExtRet</td></tr>${body}</table></div>`;
+}
+
+function renderBacktestCalib(d){
+  const mc=d.metrics_current||{}, mk=d.metrics_calibrated||{};
+  if(!mc.n) return `<div class="hint">No usable history. Use the full basket.</div>`;
+  const beat=mk.beats_baseline_brier;
+  let head=`<div class="vsum">CALIBRATION · events <b>${mc.n}</b><br>`
+    +`current: acc <b>${Math.round(mc.accuracy*100)}%</b> Brier <b>${mc.brier}</b> · `
+    +`calibrated: acc <b>${Math.round((mk.accuracy||0)*100)}%</b> Brier <b>${mk.brier}</b> · `
+    +`baseline acc <b>${Math.round(mc.baseline_always_beat_accuracy*100)}%</b> Brier <b>${mc.brier_baseline}</b><br>`
+    +(beat?`<b style="color:var(--green)">CALIBRATED MODEL BEATS BASELINE</b>`:`<span style="color:var(--amber)">does not beat baseline on this set (use the full basket)</span>`)
+    +`</div>`;
+  const sa=(d.signal_analysis||[]).map(s=>{
+    const col=s.verdict==='helps'?'var(--green)':(s.verdict&&s.verdict.indexOf('absent')>=0?'var(--mut)':'var(--amber)');
+    return `<tr><td class="v">${s.signal}</td><td class="v">${s.corr==null?'–':s.corr}</td><td class="v">${s.hit_rate==null?'–':s.hit_rate}</td><td class="v" style="color:${col}">${s.verdict}</td></tr>`;
+  }).join("");
+  const rw=d.recommended_weights||{}, rl=d.recommended_logistic||{};
+  const wl=Object.keys(rw).map(k=>`${k}: <b>${rw[k]}</b>`).join(" · ");
+  const rep=d.report_path?`<div class="hint" style="margin-top:8px">Report: ${d.report_path}</div>`:"";
+
+  // Walk-forward (out-of-sample) panel
+  const wf=d.walk_forward||{};
+  let wfHtml="";
+  if(wf.test_n){
+    wfHtml=`<div class="vsum" style="margin-top:12px">WALK-FORWARD (out-of-sample, train ${wf.train_n} → test ${wf.test_n})<br>`
+      +`OOS accuracy <b>${Math.round(wf.oos_accuracy*100)}%</b> · OOS Brier raw <b>${wf.oos_brier_raw}</b> → calibrated <b>${wf.oos_brier_calibrated}</b> `
+      +(wf.calibration_helps_oos?`<b style="color:var(--green)">(calibration helps)</b>`:`<span style="color:var(--amber)">(no OOS gain)</span>`)
+      +`<br>in-sample Brier <b>${wf.in_sample_brier}</b> — gap vs OOS = overfit check.</div>`;
+  } else if(wf.note){ wfHtml=`<div class="hint" style="margin-top:12px">Walk-forward: ${wf.note}</div>`; }
+
+  // Reliability diagram (calibration curve as text bars)
+  const rel=d.reliability||[];
+  let relHtml="";
+  if(rel.length){
+    const bars=rel.map(b=>{
+      const pw=Math.round((b.predicted||0)*60), rwd=Math.round((b.realized||0)*60);
+      return `<tr><td class="v">${b.bin}</td>`
+        +`<td class="v" style="color:var(--cyan)">${'▰'.repeat(pw/3|0)} ${Math.round(b.predicted*100)}%</td>`
+        +`<td class="v" style="color:var(--green)">${'▰'.repeat(rwd/3|0)} ${Math.round(b.realized*100)}%</td>`
+        +`<td class="v">${b.n}</td></tr>`;
+    }).join("");
+    relHtml=`<div class="vsum" style="margin-top:12px">RELIABILITY — predicted vs realized (well-calibrated = they match)`
+      +(d.isotonic_brier_in_sample!=null?` · best-achievable Brier <b>${d.isotonic_brier_in_sample}</b>`:``)+`</div>`
+      +`<div class="term" style="margin-top:6px"><table><tr><td class="k">BUCKET</td><td class="k">PREDICTED</td><td class="k">REALIZED</td><td class="k">N</td></tr>${bars}</table></div>`;
+  }
+
+  // Fitted logistic model (ML weights trained on resolved events)
+  const fl=d.fitted_logistic||{};
+  let flHtml="";
+  if(fl.coefficients){
+    const co=Object.entries(fl.coefficients).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
+      .map(([k,v])=>`${k}: <b style="color:${v>=0?'var(--green)':'var(--red)'}">${v}</b>`).join(" · ");
+    flHtml=`<div class="vsum" style="margin-top:12px">FITTED LOGISTIC (z-scored, trained on resolved events)`
+      +(fl.oos_brier!=null?` · OOS acc <b>${Math.round(fl.oos_accuracy*100)}%</b> · OOS Brier <b>${fl.oos_brier}</b> (test ${fl.test_n})`:``)
+      +`<br>${co}<br>intercept <b>${fl.intercept}</b></div>`;
+  } else if(fl.note){ flHtml=`<div class="hint" style="margin-top:12px">Fitted model: ${fl.note}</div>`; }
+
+  return `${head}<div class="term" style="margin-top:10px"><table>
+    <tr><td class="k">SIGNAL</td><td class="k">CORR w/ BEAT</td><td class="k">HIT-RATE</td><td class="k">VERDICT</td></tr>${sa}</table></div>
+    ${wfHtml}${relHtml}${flHtml}
+    <div class="vsum" style="margin-top:12px">RECOMMENDED WEIGHTS<br>${wl}<br>logistic intercept <b>${rl.intercept}</b> · gain <b>${rl.gain}</b></div>${rep}${scarTuneBtn()}`;
+}
+
+// Plain-English BOTTOM LINE for any tested outcome. Reads flexible keys so it works
+// for a full predict result (raw) and a scan-row.
+function bottomLine(o){
+  if(!o || o.error) return "";
+  const tk=o.ticker||"?", oc=o.outcome||"", thr=o.threshold;
+  const p=o.model_prob!=null?Math.round(o.model_prob*100)+"%":"–";
+  const eps=o.predicted_eps_surprise_pct, rev=o.predicted_revenue_surprise_pct, band=o.cwsf_surprise_band;
+  const sgn=v=>(v>=0?"+":"")+v+"%";
+  let what;
+  if(oc==="eps_beat") what=`Will <b>${tk}</b> beat EPS consensus? → <b>${p}</b> likely.`+(eps!=null?` We estimate it beats by <b>${sgn(eps)}</b>${band?` (range ${band})`:""}.`:"");
+  else if(oc==="eps_surprise_over") what=`Will <b>${tk}</b> EPS beat by ≥ ${thr??"?"}%? → <b>${p}</b> likely.`+(eps!=null?` Estimated surprise <b>${sgn(eps)}</b>${band?` (range ${band})`:""}.`:"");
+  else if(oc==="revenue_beat") what=`Will <b>${tk}</b> beat revenue${thr?` by ≥ ${thr}%`:""}? → <b>${p}</b> likely.`+(rev!=null?` Estimated revenue surprise <b>${sgn(rev)}</b>.`:"");
+  else if(oc==="revenue_over") what=`Will <b>${tk}</b> revenue exceed ${thr!=null?"$"+Number(thr).toLocaleString():"the market's level"}? → <b>${p}</b> likely.`;
+  else if(oc==="stock_up") what=`Will <b>${tk}</b> rise after earnings? → <b>${p}</b> likely.`;
+  else what=`<b>${tk}</b> ${oc}: <b>${p}</b>.`;
+  const ci=o.model_prob_ci?` (range ${Math.round(o.model_prob_ci[0]*100)}–${Math.round(o.model_prob_ci[1]*100)}%)`:"";
+  // Polymarket link — included automatically whenever a market is attached (auto-found or given).
+  const mkt=o.market||{};
+  const pmUrl=mkt.url||(mkt.slug?`https://polymarket.com/event/${mkt.slug}`:null);
+  const pmLink=pmUrl?` <a href="${pmUrl}" target="_blank" style="color:var(--cyan)">↗ open on Polymarket</a>`:"";
+  const baseRec=((o.edge&&o.edge.recommendation)||o.recommendation||"No live Polymarket market found for this one — nothing to trade against.")+pmLink;
+  const k=(o.scar_predictability!=null?o.scar_predictability:o.predictability);
+  // Recommendation MUST agree with SCAR (the trust gate). Low SCAR overrides any confident
+  // call — otherwise the bottom line and the SCAR badge contradict each other.
+  let rec, recCol="";
+  if(k==null) rec=baseRec;
+  else if(k<25){ rec=`SKIP — SCAR ${k}/100 (coin-flip). Do NOT trust this read.`; recCol="color:var(--red)"; }
+  else if(k<45){ rec=`LOW CONVICTION (SCAR ${k}/100) — size down / lean pass. ${baseRec}`; recCol="color:var(--amber)"; }
+  else rec=baseRec;
+  return `<div class="bottomline"><div class="bl-ttl">⬇ BOTTOM LINE</div>`
+    +`<div class="bl-row"><b>What we got:</b> ${what}</div>`
+    +`<div class="bl-row" style="${recCol}"><b>Recommendation:</b> ${rec}</div>`
+    +`<div class="bl-row"><b>Confidence:</b> ${o.confidence||"n/a"}${ci}${k!=null?` · SCAR ${k}/100`:""}</div></div>`;
+}
+
+function scarTuneBtn(){
+  return `<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">
+    <button class="btn" onclick="tuneScar()">⟳ UPDATE SCAR FROM THIS BACKTEST</button>
+    <div class="hint" style="margin-top:6px">Recalibrates SCAR's confidence threshold to where the model is most reliable on this data (in-sample). Deeper logic upgrades still come from the chat analysis.</div>
+    <div id="scarTuneOut"></div></div>`;
+}
+async function tuneScar(){
+  const out=$("#scarTuneOut"); out.innerHTML='<div class="loading">recalibrating SCAR</div>';
+  const res=await post("/api/scar_tune",{ticker:state.ticker,
+    since:($("#btSince")?$("#btSince").value.trim():""),until:($("#btUntil")?$("#btUntil").value.trim():""),
+    basket:($("#btWinBasket")?$("#btWinBasket").checked:($("#btBasket")?$("#btBasket").checked:true))});
+  if(res.error){ out.innerHTML=`<div class="hint" style="color:var(--amber)">${res.error}</div>`; return; }
+  const moved=res.old_threshold!==res.new_threshold;
+  out.innerHTML=`<div class="ok" style="margin-top:8px">✓ SCAR threshold ${moved?`<b>${res.old_threshold} → ${res.new_threshold}</b>`:`unchanged (<b>${res.new_threshold}</b>)`}. `
+    +`Confident tier: <b>${Math.round(res.high_accuracy*100)}%</b> accurate over <b>${res.high_n}</b> events (vs ${Math.round(res.overall_accuracy*100)}% overall, ${res.events} events). Saved — live SCAR now uses it.</div>`;
+}
+function renderForwardWindow(d){
+  const m=d.metrics||{}; const evs=d.events||[]; const v=d.vault||{};
+  if(!m.n){ return `<div class="hint">No earnings events found from ${d.since||'(no date)'} to present. Pick an earlier date or enable the basket.</div>`; }
+  const beat=m.beats_baseline_brier;
+  let head=`<div class="vsum">WINDOW from <b>${d.since||'start'}</b> → present · events <b>${m.n}</b> · `
+    +`model acc <b>${Math.round(m.accuracy*100)}%</b> · Brier <b>${m.brier}</b> · `
+    +`baseline <b>${Math.round(m.baseline_always_beat_accuracy*100)}%</b>/<b>${m.brier_baseline}</b> · `
+    +(beat?`<b style="color:var(--green)">BEATS BASELINE</b>`:`<span style="color:var(--amber)">ties/trails baseline</span>`)
+    +`<br>precision <b>${m.precision}</b> · recall <b>${m.recall}</b> · FP <b>${m.false_positives}</b> · FN <b>${m.false_negatives}</b></div>`;
+  const cf=d.confident||{};
+  if(cf.n!=null) head+=`<div class="vsum" style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px">◈ CONFIDENT ZONE (SCAR ≥45) — where a backtest can be trusted<br>`
+    +`<b style="color:var(--green)">${cf.n}</b> confident events · accuracy <b style="color:var(--green)">${cf.accuracy!=null?Math.round(cf.accuracy*100)+'%':'–'}</b> `
+    +`vs <b>${cf.all_accuracy!=null?Math.round(cf.all_accuracy*100)+'%':'–'}</b> across all ${cf.all_n} events</div>`;
+  const matches=evs.filter(e=>e.correct).length, misses=evs.length-matches;
+  const body=evs.map(e=>{
+    const mp=e.prob!=null?Math.round(e.prob*100)+'%':'–';
+    const st=e.correct?`<span style="color:var(--green)">✓ match</span>`:`<span style="color:var(--red)">✗ miss</span>`;
+    const act=e.actual_beat?'BEAT':'MISS';
+    const sp=e.surprise_pct!=null?` ${e.surprise_pct>0?'+':''}${Number(e.surprise_pct).toFixed(1)}%`:'';
+    const ea=(e.eps_actual!=null&&e.eps_estimate!=null)?`<div class="pm">est ${e.eps_estimate} → act ${e.eps_actual}</div>`:'';
+    const pred=e.pred_beat?'beat':'miss';
+    const diff=e.correct?'<span style="color:var(--mut)">—</span>':`<span style="color:var(--amber)">${(e.diagnosis||'').replace(/</g,'&lt;')}</span>`;
+    const pk=e.predictability!=null?`<span style="color:${e.predictability>=45?'var(--green)':'var(--amber)'}">${e.predictability}</span>`:'–';
+    return `<tr><td class="v">${e.date}</td><td class="v">${e.ticker}</td><td class="v">${pk}</td><td class="v">${mp}</td><td class="v">${pred}</td><td class="v">${act}${sp}${ea}</td><td class="v">${st}</td><td class="v" style="width:30%">${diff}</td></tr>`;
+  }).join("");
+  const vaultline=`<div class="hint" style="margin-top:10px">Matches <b style="color:var(--green)">${matches}</b> · mismatches <b style="color:var(--red)">${misses}</b>. Live vault: ${v.logged||0} logged · ${v.pending||0} pending · ${v.resolved||0} resolved.</div>`;
+  return `${head}<div class="term" style="margin-top:10px"><table>
+    <tr><td class="k">EARNINGS</td><td class="k">TICKER</td><td class="k">SCAR</td><td class="k">MODEL</td><td class="k">PRED</td><td class="k">ACTUAL (EPS)</td><td class="k">MATCH</td><td class="k">WHAT DIFFERED / FIX</td></tr>
+    ${body}</table></div>${vaultline}${scarTuneBtn()}`;
+}
+
+async function refreshVault(){
+  $("#resOut").innerHTML='<div class="loading">checking for resolved earnings</div>';
+  const res=await post("/api/forward",{});
+  $("#resOut").innerHTML=renderForward(res);
+}
+function renderForward(d, entry){
+  d=d||{}; const s=d.summary||{}; const rows=d.rows||[];
+  let banner="";
+  if(entry){ banner = entry.error
+    ? `<div class="err">${entry.error}</div>`
+    : `<div class="ok">✓ Logged ${entry.ticker} · ${entry.outcome} — your result ${entry.model_prob!=null?Math.round(entry.model_prob*100)+'%':'–'}. Held PENDING until ${entry.earnings_date||'earnings'}.</div>`; }
+  let head=`<div class="vsum">LIBRARY · logged <b>${s.logged||0}</b> · pending <b>${s.pending||0}</b> · resolved <b>${s.resolved||0}</b>`;
+  if(s.model_accuracy!=null) head+=` · your acc <b>${Math.round(s.model_accuracy*100)}%</b> · Brier <b>${s.model_brier}</b>`;
+  if(s.market_brier!=null) head+=` · vs market ${s.model_beats_market?'<b style="color:var(--green)">BEATS</b>':'trails'} (mkt Brier ${s.market_brier})`;
+  if(s["realized_pnl_per_$1"]!=null){ const p=s["realized_pnl_per_$1"]; const ci=s.pnl_ci95||[];
+    head+=`<br>💰 realized edge <b style="color:${p>0?'var(--green)':'var(--red)'}">${p>0?'+':''}${(p*100).toFixed(0)}% / $1</b> over ${s.bets} bets · hit-rate ${Math.round(s.edge_hit_rate*100)}%`;
+    if(ci.length) head+=` · 95% CI [${(ci[0]*100).toFixed(0)}%, ${(ci[1]*100).toFixed(0)}%]`;
+    if(s.benchmark_favorite_pnl!=null) head+=` · vs crowd ${(s.benchmark_favorite_pnl*100).toFixed(0)}% (${s.beats_crowd?'<b style="color:var(--green)">beats</b>':'trails'})`;
+  }
+  if(s.verdict){ const col=s.verdict.indexOf('CONFIRMED')>=0?'var(--green)':(s.verdict.indexOf('NO PROVEN')>=0?'var(--red)':'var(--amber)');
+    head+=`<br><b style="color:${col}">⚖ ${s.verdict}</b>`; }
+  head+=`</div><div style="margin:8px 0"><button class="btn" onclick="refreshVault()">🔄 UPDATE RESULTS (check for resolved earnings)</button></div>`;
+  if(!rows.length) return `${banner}${head}<div class="hint" style="margin-top:10px">${d.note||''}</div>`;
+  const body=rows.map(r=>{
+    const ar=r.status==='pending'?`<span style="color:var(--amber)">pending</span>`
+      :(r.correct?`<span style="color:var(--green)">${r.actual_result} ✓</span>`:`<span style="color:var(--red)">${r.actual_result} ✗</span>`);
+    const diff=r.status==='pending'?`<span style="color:var(--mut)">${r.difference}</span>`
+      :(r.correct?'<span style="color:var(--green)">match</span>':`<span style="color:var(--amber)">${r.difference}</span>`);
+    return `<tr><td class="v">${r.ticker}</td><td class="v">${r.outcome}</td><td class="v">${r.earnings_date||'–'}</td><td class="v">${r.your_result}</td><td class="v">${ar}</td><td class="v" style="width:34%">${diff}</td></tr>`;
+  }).join("");
+  return `${banner}${head}<div class="term" style="margin-top:10px"><table>
+    <tr><td class="k">TICKER</td><td class="k">OUTCOME</td><td class="k">EARNINGS</td><td class="k">YOUR RESULT</td><td class="k">ACTUAL RESULT</td><td class="k">DIFFERENCE</td></tr>
+    ${body}</table></div><div class="hint" style="margin-top:8px">${d.note||''}</div>`;
+}
+
+function renderIntel(recs){
+  if(!recs||!recs.length){$("#intelOut").innerHTML="";return;}
+  const items=recs.map(r=>{
+    const sup=(r.suppliable&&r.key==="polymarket_url")
+      ? `<div class="sup"><input id="pmIntel" placeholder="paste Polymarket URL"/><button class="btn" id="rerunPM">RE-RUN</button></div>
+         <button class="btn ghost" id="findPM" style="margin-top:8px;font-size:12px;padding:8px 12px">🔍 FIND MARKETS FOR ${state.ticker}</button><div id="intelSuggest"></div>`
+      : (r.suppliable&&r.key==="earnings_date")
+      ? `<div class="sup"><input id="edIntel" placeholder="YYYY-MM-DD"/><button class="btn" id="scanDate2">🌐 SCAN WEB</button><button class="btn" id="rerunDate">RE-RUN</button></div><div id="edIntelMsg" class="hint"></div>`
+      : (r.suppliable&&r.key==="snapshot")
+      ? `<div class="w">→ optional: drop a TradingView CSV on the LOAD page (advanced) to improve this.</div>`:"";
+    return `<div class="rec"><div class="badge b-${r.band}">${r.importance}<span class="lab">${r.band}</span></div>
+      <div><div class="l">${r.label}</div><div class="w">${r.why}</div>${sup}</div></div>`;}).join("");
+  $("#intelOut").innerHTML=`<div class="intel"><div class="it">◈ ORACLE INTEL — what would sharpen this (importance 1–100)</div>${items}</div>`;
+  const rb=$("#rerunPM"); if(rb) rb.onclick=()=>{const v=$("#pmIntel").value.trim();if(v){$("#pm").value=v;execute();}};
+  const fb=$("#findPM"); if(fb) fb.onclick=()=>suggestMarkets($("#intelSuggest"),slug=>{$("#pm").value=slug;execute();});
+  const sd=$("#scanDate2"); if(sd) sd.onclick=async()=>{const dt=await scanEarningsDate($("#edIntelMsg"));if(dt){$("#edIntel").value=dt;}};
+  const rd=$("#rerunDate"); if(rd) rd.onclick=()=>{const v=$("#edIntel").value.trim();if(v){if($("#edate"))$("#edate").value=v;execute();}};
+}
+
+async function execute(){
+  const btn=$("#execBtn");btn.disabled=true;go(5);
+  $("#resOut").innerHTML='<div class="loading">running engine</div>';$("#intelOut").innerHTML="";
+  $("#resHead").textContent=`${state.mode.toUpperCase()} · ${state.ticker} · ${state.outcomeLabel||state.outcome}`;
+  sage("Crunching signals…");
+  try{
+    let res,html;lastRaw=null;
+    if(state.mode==="predict"){
+      const f=$("#snap")?$("#snap").files[0]:null;
+      if(f){const fd=new FormData();fd.append("file",f);const up=await(await fetch("/api/upload",{method:"POST",body:fd})).json();state.snapshot_path=up.path||null;}
+      res=await post("/api/predict",{ticker:state.ticker,outcome:state.outcome,threshold:state.needsTh?$("#threshold").value:"",
+        polymarket_url:$("#pm").value,snapshot_path:state.snapshot_path,log:$("#log").checked,
+        earnings_date:($("#edate")?$("#edate").value.trim():"")});
+      lastRaw=res.raw; html=res.error?`<div class="err">${res.error}</div>`:renderRows(res.rows)+bottomLine(res.raw);
+    } else if(state.mode==="backtest"){
+      if(state.btMode==="reaction"){
+        res=await post("/api/reaction_test",{ticker:state.ticker,basket:$("#btRxBasket").checked});
+        html=res.error?`<div class="err">${res.error}</div>`:renderReaction(res);
+      } else if(state.btMode==="window"){
+        res=await post("/api/forward_test",{ticker:state.ticker,since:$("#btSince").value.trim(),until:$("#btUntil").value.trim(),basket:$("#btWinBasket").checked,confident_only:$("#btConfident").checked});
+        html=res.error?`<div class="err">${res.error}</div>`:renderForwardWindow(res);
+      } else {
+        res=await post("/api/backtest",{tickers:$("#btBasket").checked?"":state.ticker,quarters:$("#btQuarters").value,report:$("#btReport").checked});
+        html=res.error?`<div class="err">${res.error}</div>`:renderBacktestCalib(res);
+      }
+    } else if(state.mode==="scan"){
+      res=await post("/api/scan",{limit:12,outcome:state.outcome,
+        threshold:(state.needsTh&&$("#scanThreshold")?$("#scanThreshold").value:"")});
+      html=res.error?`<div class="err">${res.error}</div>`:renderScan(res);
+    } else {
+      res=await post("/api/forward_log",{ticker:state.ticker,outcome:state.outcome,
+        threshold:state.needsTh?($("#fwThreshold")?$("#fwThreshold").value:""):"",
+        polymarket_url:$("#fwPm")?$("#fwPm").value:""});
+      html=res.error?`<div class="err">${res.error}</div>`:renderForward(res.library,res.entry);
+    }
+    $("#resOut").innerHTML=html; runs++; $("#score").textContent="RUNS: "+runs;
+    if(state.mode==="predict" && lastRaw){ showScarResult(lastRaw); showSmgResult(lastRaw); showPumpResult(lastRaw); }
+    else { $("#scarKills").style.display="none"; $("#smgBadge").style.display="none"; $("#pumpBadge").style.display="none"; }
+    if(state.mode==="predict"&&lastRaw){ renderIntel(lastRaw.recommendations);
+      const top=(lastRaw.recommendations||[])[0];
+      sage(top?`Top tip (importance <b>${top.importance}/${top.band}</b>): ${top.label}. ${top.why}`:"Clean read — gap between model & market is your edge.");
+    } else { renderIntel(null); sage(state.mode==="backtest"?"Compare accuracy/Brier vs the always-beat baseline.":"Logged EPS calls scored above."); }
+  }catch(e){$("#resOut").innerHTML=`<div class="err">${e}</div>`;sage("Engine error — check the server log.");}
+  btn.disabled=false;
+}
+// web-scan the earnings date; returns date string or null
+async function scanEarningsDate(msgEl){
+  if(msgEl) msgEl.innerHTML='<span class="suggesting">scanning the web…</span>';
+  try{
+    const d=await post("/api/find_earnings_date",{ticker:state.ticker});
+    if(d.date){ if($("#edate")) $("#edate").value=d.date;
+      if(msgEl) msgEl.innerHTML=`<span class="ok">✓ ${d.date} (${d.source||'web'})</span>`; return d.date; }
+    if(msgEl) msgEl.innerHTML='<span class="w">not found — enter it manually</span>'; return null;
+  }catch(e){ if(msgEl) msgEl.innerHTML=`<span class="err">${e}</span>`; return null; }
+}
+$("#execBtn").onclick=execute;
+$("#scanDateBtn").onclick=()=>scanEarningsDate($("#dateMsg"));
+$("#suggestBtn").onclick=()=>suggestMarkets($("#pmSuggest"),slug=>{$("#pm").value=slug;$("#pmSuggest").innerHTML='<div class="ok">✓ market selected — hit EXECUTE</div>';});
+$("#againBtn").onclick=()=>{state.snapshot_path=null;go(0);};
+// Auto-alert: the reliable notify channel. Checks the daily/weekly job flags whenever the
+// app is open (and every 10 min) and shows a top banner — macOS background banners are
+// unreliable, this isn't.
+async function autoAlert(){
+  try{
+    const d=await (await fetch("/api/edge_status")).json();
+    let msg="",col="",clickEdge=false;
+    if(d.fade_proven){ msg="🎯✅ FADES ARE RELIABLE — fade-the-beat is proven profitable in the vault. Click ▶"; col="var(--green)"; clickEdge=true; }
+    else if(d.edge_confirmed){ msg="✅ EDGE CONFIRMED — forward test cleared the bar (CI>0, 30+ bets). We're good. Click ▶"; col="var(--green)"; clickEdge=true; }
+    else if(d.edge_disproven){ msg="⛔ EDGE DISPROVEN — forward test says net-losing. Do not trade. (click to dismiss)"; col="var(--red)"; }
+    else if(d.has_fade){ msg=`🎯 ${d.fade_beat.length} FADE-THE-BEAT: market says beat, we say MISS + ≥2 bearish confirmers (~33% vs 14% base, +EV) — click ▶`; col="var(--green)"; clickEdge=true; }
+    else if(d.has_edge){ const n=d.edges.length; const p=d.has_potential?` (+${d.potential.length} potential)`:""; msg=`⚡ ${n} BELIEVABLE EDGE(S) FOUND${p} — click to open the edge ▶`; col="var(--green)"; clickEdge=true; }
+    else if(d.has_potential){ msg=`👀 ${d.potential.length} POTENTIAL edge(s) seen (UNPROVEN — look, don't bet) — click ▶`; col="var(--amber)"; clickEdge=true; }
+    else if(d.forward_done){ msg="✅ ALL FORWARD TESTS DONE — lock back on to review. (click to dismiss)"; col="var(--green)"; }
+    else if(d.fit_ready){ msg="🔧 ≥30 bets resolved — ready to fit SMG together. (click to dismiss)"; col="var(--amber)"; }
+    const bar=$("#alertBar");
+    if(msg){ bar.textContent=msg; bar.style.background=col; bar.style.display="block";
+      bar.onclick=clickEdge?goToEdge:function(){this.style.display='none';}; }
+    else bar.style.display="none";
+  }catch(e){}
+}
+// Banner click on a found edge -> straight to the result page + open the top edge's deep dive.
+async function goToEdge(){
+  $("#alertBar").style.display="none";
+  go(5);
+  $("#resOut").innerHTML='<div class="loading">finding the edge…</div>';
+  let st={}; try{ st=await (await fetch("/api/edge_status")).json(); }catch(e){}
+  // Pick the target: FADE first (what the banner promised), then a real edge, then potential.
+  const bk=st.edge_book||{real:[],potential:[]};
+  const book=[...(bk.real||[]),...(bk.potential||[])];
+  let target=book.find(r=>r.fade_beat) || (bk.real&&bk.real[0]) || (bk.potential&&bk.potential[0]) || null;
+  if(!target){
+    const line=(st.fade_beat&&st.fade_beat[0])||(st.edges&&st.edges[0])||(st.potential&&st.potential[0])||"";
+    const m=line.match(/\b([A-Z]{1,5})\b(?=\s+(eps|revenue|stock))/)||line.match(/\b([A-Z]{2,5})\b/);
+    if(m) target={ticker:m[1],outcome:"eps_beat"};
+  }
+  if(!target){ $("#resOut").innerHTML='<div class="hint">Nothing active to open right now.</div>'; return; }
+  const guardWarn=(st.guard && st.guard.tradeable_now===false && st.guard.warning)
+    ? `<div class="vsum" style="border:1px solid var(--red);color:var(--red)">${st.guard.warning}</div>` : "";
+  const isFade=!!target.fade_beat;
+  state.mode="predict"; state.ticker=target.ticker; state.outcome=target.outcome||"eps_beat";
+  $("#resOut").innerHTML=`<div class="loading">loading ${target.ticker}…</div>`;
+  // Pass the EXACT market this edge was flagged on (slug/url + threshold) so the link + edge
+  // come straight back — don't re-predict blind (that's what dropped the NVDA link).
+  const pmRef=target.slug||target.url||null;
+  let pr; try{ pr=await post("/api/predict",{ticker:target.ticker,outcome:state.outcome,
+                 polymarket_url:pmRef, threshold:(target.threshold??"")}); }
+  catch(e){ $("#resOut").innerHTML=`<div class="err">${e}</div>`; return; }
+  if(pr.error){ $("#resOut").innerHTML=`<div class="err">${pr.error}</div>`; return; }
+  lastRaw=pr.raw;
+  const raw=pr.raw;
+  let header;
+  if(isFade){
+    const mkt=Math.round((target.market_prob||0)*100);
+    const mod=Math.round((raw.model_prob!=null?raw.model_prob:(target.model_prob||0))*100);
+    const k=raw.scar_predictability;
+    const kw=k==null?"":(k<25?"coin-flip — treat as speculative":k<45?"low — size down":"solid");
+    header=`<div class="vsum" style="border:1px solid var(--green);padding:8px">🎯 FADE THE BEAT · <b>${target.ticker}</b> (${(target.outcome||'eps_beat').replace('_',' ')})<br>`
+      +`Polymarket prices a <b>BEAT</b> at <b style="color:#ff6b6b">${mkt}%</b> · our model says only <b style="color:var(--green)">${mod}% beat</b> → we expect a <b>MISS</b>.<br>`
+      +`➡ <b>Recommendation: bet NO</b> (against the beat) — <a href="${target.url||'#'}" target="_blank" style="color:var(--cyan)">open this market ▶</a><br>`
+      +`<span style="color:var(--amber);font-size:11px">⚠ SCAR ${k??'–'}/100 conviction${kw?` (${kw})`:""}. Contrarian NO calls are unproven forward — size small.</span></div>`;
+  } else {
+    const side=(raw.edge&&raw.edge.side)||"";
+    header=`<div class="vsum">FLAGGED EDGE · <b>${target.ticker}</b>${side?` · suggested side ${side}`:""}</div>`;
+  }
+  $("#resOut").innerHTML=guardWarn+header+renderRows(pr.rows)+bottomLine(raw);
+  showScarResult(lastRaw); showSmgResult(lastRaw); showPumpResult(lastRaw);
+}
+go(0);
+// If opened from an edge banner (…/?edge=1), jump straight to the found edge.
+if(new URLSearchParams(location.search).get("edge")) goToEdge();
+else { autoAlert(); }
+setInterval(autoAlert, 600000);
+</script>
+</body>
+</html>

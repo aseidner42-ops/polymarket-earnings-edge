@@ -1,0 +1,8 @@
+{
+  "min_edge": 0.06,
+  "scar_min_K": 45.0,
+  "set_by": "daily_improve",
+  "at": "2026-11-04T07:15:30",
+  "n_bets": 413,
+  "reason": "threshold 3% proven profitable (CI>0, n>=25)"
+}

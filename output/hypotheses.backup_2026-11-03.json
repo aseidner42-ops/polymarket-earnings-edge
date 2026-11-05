@@ -1,0 +1,27 @@
+{
+  "pre_registered": [
+    {
+      "id": "strike_gap_v1",
+      "registered_at": "2026-09-21",
+      "route": "A - structural strike-gap mispricing",
+      "claim": "For Polymarket EPS contracts with an explicit FROZEN strike, betting the side favored by P(round(reported EPS,2) > strike) - where that probability is computed from FRESH consensus (>=3 analysts) plus the firm's cents-model surprise distribution, NOT from our beat-signal blend - is positive-EV net of fees/spread, because the crowd misprices markets whose frozen strike has drifted away from current consensus.",
+      "rationale": "Our beat-signal disagreements with the market LOSE (-0.57/$1). This bet deliberately does NOT use those signals. It uses consensus (the market's own best estimate) + the frozen strike, exploiting a MECHANICAL mispricing (strike set at creation, consensus drifts) rather than trying to out-predict analysts.",
+      "entry_gate": {
+        "real_strike_parsed": true,
+        "strike_within_band_of_consensus": "0.3..3.0x",
+        "consensus_source": "yfinance_estimate (fresh)",
+        "min_analysts": 3,
+        "not_abstaining": true,
+        "min_executable_edge_after_friction": 0.05,
+        "requires_live_two_sided_book": true
+      },
+      "side_rule": "YES if contract_prob - yes_price >= min_edge; NO if yes_price - contract_prob >= min_edge",
+      "logging_note_tag": "strikegap-fwd",
+      "success_criterion": ">=30 resolved strike-gap bets AND realized P&L 95% CI-low > 0 (leveraged per-$1 convention)",
+      "kill_criterion": ">=30 resolved AND 95% CI-high < 0 (structural edge disproven)",
+      "status": "OPEN - forward accumulation; NO tradeable claim until success_criterion met",
+      "prerequisite": "contract_prob must be calibrated (synthetic-strike backtest); see output/strike_calibration.txt",
+      "honest_notes": "No historical Polymarket strikes exist -> this CANNOT be backtested for a money edge; forward vault is the only judge. Do not data-snoop: this exact rule is frozen as written."
+    }
+  ]
+}

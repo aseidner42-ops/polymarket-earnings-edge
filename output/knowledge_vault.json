@@ -1,0 +1,1014 @@
+{
+  "generated": "2026-06-15",
+  "companies": {
+    "AAPL": {
+      "sector": "Technology",
+      "market_cap": 4376979046400,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 4.835826042918564,
+        "sigma": 10.161907185114853,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.48
+      },
+      "n_analysts": 32,
+      "dispersion": 0.084,
+      "kappa": 0.805,
+      "current_pred_surprise_pct": 2.66,
+      "current_sigma": 12.12
+    },
+    "ABBV": {
+      "sector": "Healthcare",
+      "market_cap": 382492999680,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.7612821072150184,
+        "sigma": 1.735138833302204,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 1.02
+      },
+      "n_analysts": 21,
+      "dispersion": 0.061,
+      "kappa": 0.773,
+      "current_pred_surprise_pct": 0.97,
+      "current_sigma": 2.07
+    },
+    "ADBE": {
+      "sector": "Technology",
+      "market_cap": 77576101888,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 2.549771806169215,
+        "sigma": 2.559130711784765,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 1.0
+      },
+      "n_analysts": 29,
+      "dispersion": 0.072,
+      "kappa": 0.818,
+      "current_pred_surprise_pct": 1.4,
+      "current_sigma": 3.0
+    },
+    "AMD": {
+      "sector": "Technology",
+      "market_cap": 876235849728,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 4.797230724851234,
+        "sigma": 7.541124612195893,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.64
+      },
+      "n_analysts": 40,
+      "dispersion": 0.162,
+      "kappa": 0.661,
+      "current_pred_surprise_pct": 2.64,
+      "current_sigma": 10.25
+    },
+    "AMGN": {
+      "sector": "Healthcare",
+      "market_cap": 182205513728,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 8.799972539142233,
+        "sigma": 5.801115014948993,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 1.52
+      },
+      "n_analysts": 27,
+      "dispersion": 0.231,
+      "kappa": 0.53,
+      "current_pred_surprise_pct": 4.84,
+      "current_sigma": 8.81
+    },
+    "AMZN": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 2628929978368,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 23.791806827845633,
+        "sigma": 32.854604126764166,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.72
+      },
+      "n_analysts": 45,
+      "dispersion": 0.298,
+      "kappa": 0.523,
+      "current_pred_surprise_pct": 13.09,
+      "current_sigma": 52.32
+    },
+    "ASML": {
+      "sector": "Technology",
+      "market_cap": 743732805632,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 6.014280194701134,
+        "sigma": 9.191431462312542,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.65
+      },
+      "n_analysts": 14,
+      "dispersion": 0.115,
+      "kappa": 0.551,
+      "current_pred_surprise_pct": 3.31,
+      "current_sigma": 12.74
+    },
+    "AVGO": {
+      "sector": "Technology",
+      "market_cap": 1957030658048,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 2.3296958466229305,
+        "sigma": 1.5142184911329306,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 1.54
+      },
+      "n_analysts": 37,
+      "dispersion": 0.077,
+      "kappa": 0.828,
+      "current_pred_surprise_pct": 1.28,
+      "current_sigma": 1.77
+    },
+    "AXP": {
+      "sector": "Financial Services",
+      "market_cap": 230626344960,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 6.2155670363133035,
+        "sigma": 17.600919241895358,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 0.35
+      },
+      "n_analysts": 23,
+      "dispersion": 0.138,
+      "kappa": 0.645,
+      "current_pred_surprise_pct": 3.42,
+      "current_sigma": 23.7
+    },
+    "BA": {
+      "sector": "Industrials",
+      "market_cap": 175570698240,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 3.634533388436831,
+        "sigma": 40.35265189679814,
+        "beat_rate": 0.375,
+        "n": 24,
+        "consistency": 0.09
+      },
+      "n_analysts": 19,
+      "dispersion": 3.852,
+      "kappa": 0.381,
+      "current_pred_surprise_pct": 2.0,
+      "current_sigma": 225.85
+    },
+    "BAC": {
+      "sector": "Financial Services",
+      "market_cap": 398828404736,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 5.353363422090345,
+        "sigma": 14.789148324353306,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.36
+      },
+      "n_analysts": 14,
+      "dispersion": 0.073,
+      "kappa": 0.635,
+      "current_pred_surprise_pct": 2.94,
+      "current_sigma": 19.08
+    },
+    "CMG": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 41676029952,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 4.051454842484594,
+        "sigma": 5.729986123213758,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 0.71
+      },
+      "n_analysts": 33,
+      "dispersion": 0.094,
+      "kappa": 0.788,
+      "current_pred_surprise_pct": 2.23,
+      "current_sigma": 6.95
+    },
+    "COP": {
+      "sector": "Energy",
+      "market_cap": 131258990592,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 5.23390564436079,
+        "sigma": 14.28036842039526,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 0.37
+      },
+      "n_analysts": 17,
+      "dispersion": 0.574,
+      "kappa": 0.349,
+      "current_pred_surprise_pct": 2.88,
+      "current_sigma": 28.98
+    },
+    "COST": {
+      "sector": "Consumer Defensive",
+      "market_cap": 421947932672,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.456424546748814,
+        "sigma": 7.131463917329082,
+        "beat_rate": 0.75,
+        "n": 24,
+        "consistency": 0.2
+      },
+      "n_analysts": 27,
+      "dispersion": 0.121,
+      "kappa": 0.71,
+      "current_pred_surprise_pct": 0.8,
+      "current_sigma": 9.18
+    },
+    "CRM": {
+      "sector": "Technology",
+      "market_cap": 124307816448,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 12.863698984362104,
+        "sigma": 16.673959066085654,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.77
+      },
+      "n_analysts": 42,
+      "dispersion": 0.089,
+      "kappa": 0.81,
+      "current_pred_surprise_pct": 7.08,
+      "current_sigma": 19.89
+    },
+    "CSCO": {
+      "sector": "Technology",
+      "market_cap": 471159111680,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 3.126397817111696,
+        "sigma": 2.408785100361222,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 1.3
+      },
+      "n_analysts": 22,
+      "dispersion": 0.043,
+      "kappa": 0.812,
+      "current_pred_surprise_pct": 1.72,
+      "current_sigma": 2.77
+    },
+    "CVX": {
+      "sector": "Energy",
+      "market_cap": 345801129984,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 8.358114741033319,
+        "sigma": 22.643570218104347,
+        "beat_rate": 0.625,
+        "n": 24,
+        "consistency": 0.37
+      },
+      "n_analysts": 17,
+      "dispersion": 0.683,
+      "kappa": 0.349,
+      "current_pred_surprise_pct": 4.6,
+      "current_sigma": 48.69
+    },
+    "DG": {
+      "sector": "Consumer Defensive",
+      "market_cap": 25025554432,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 11.705885231156598,
+        "sigma": 12.497149693933807,
+        "beat_rate": 0.7391304347826086,
+        "n": 23,
+        "consistency": 0.94
+      },
+      "n_analysts": 20,
+      "dispersion": 0.095,
+      "kappa": 0.697,
+      "current_pred_surprise_pct": 6.44,
+      "current_sigma": 15.89
+    },
+    "FCX": {
+      "sector": "Basic Materials",
+      "market_cap": 98731606016,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 21.034219901851404,
+        "sigma": 16.026518903358966,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 1.31
+      },
+      "n_analysts": 11,
+      "dispersion": 0.471,
+      "kappa": 0.231,
+      "current_pred_surprise_pct": 11.57,
+      "current_sigma": 32.25
+    },
+    "FDX": {
+      "sector": "Industrials",
+      "market_cap": 77833527296,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 7.547553809136952,
+        "sigma": 18.635101692885033,
+        "beat_rate": 0.7083333333333334,
+        "n": 24,
+        "consistency": 0.41
+      },
+      "n_analysts": 21,
+      "dispersion": 0.138,
+      "kappa": 0.621,
+      "current_pred_surprise_pct": 4.15,
+      "current_sigma": 25.4
+    },
+    "GE": {
+      "sector": "Industrials",
+      "market_cap": 373672869888,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 17.41893143992724,
+        "sigma": 24.97175762722872,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.7
+      },
+      "n_analysts": 18,
+      "dispersion": 0.187,
+      "kappa": 0.489,
+      "current_pred_surprise_pct": 9.58,
+      "current_sigma": 37.5
+    },
+    "GOOGL": {
+      "sector": "Communication Services",
+      "market_cap": 4490912595968,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 18.852022569876826,
+        "sigma": 19.368392206547934,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.97
+      },
+      "n_analysts": 42,
+      "dispersion": 0.185,
+      "kappa": 0.624,
+      "current_pred_surprise_pct": 10.37,
+      "current_sigma": 27.24
+    },
+    "GS": {
+      "sector": "Financial Services",
+      "market_cap": 323493363712,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 14.351222885686429,
+        "sigma": 23.53433571696658,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.61
+      },
+      "n_analysts": 19,
+      "dispersion": 0.144,
+      "kappa": 0.582,
+      "current_pred_surprise_pct": 7.89,
+      "current_sigma": 32.82
+    },
+    "HD": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 333316161536,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.6212092961185522,
+        "sigma": 6.193403735135381,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.26
+      },
+      "n_analysts": 30,
+      "dispersion": 0.047,
+      "kappa": 0.862,
+      "current_pred_surprise_pct": 0.89,
+      "current_sigma": 6.96
+    },
+    "INTC": {
+      "sector": "Technology",
+      "market_cap": 673433780224,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 20.54580493456286,
+        "sigma": 37.261132592600205,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 0.55
+      },
+      "n_analysts": 33,
+      "dispersion": 0.598,
+      "kappa": 0.486,
+      "current_pred_surprise_pct": 11.3,
+      "current_sigma": 72.06
+    },
+    "JNJ": {
+      "sector": "Healthcare",
+      "market_cap": 549784256512,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 3.157605588300026,
+        "sigma": 3.682961684681682,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.86
+      },
+      "n_analysts": 16,
+      "dispersion": 0.123,
+      "kappa": 0.575,
+      "current_pred_surprise_pct": 1.74,
+      "current_sigma": 5.08
+    },
+    "JPM": {
+      "sector": "Financial Services",
+      "market_cap": 871430684672,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 8.090199682990924,
+        "sigma": 14.180447194601758,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 0.57
+      },
+      "n_analysts": 14,
+      "dispersion": 0.113,
+      "kappa": 0.555,
+      "current_pred_surprise_pct": 4.45,
+      "current_sigma": 19.6
+    },
+    "KO": {
+      "sector": "Consumer Defensive",
+      "market_cap": 341574090752,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 4.721139342851317,
+        "sigma": 5.080253438559931,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 0.93
+      },
+      "n_analysts": 17,
+      "dispersion": 0.07,
+      "kappa": 0.696,
+      "current_pred_surprise_pct": 2.6,
+      "current_sigma": 6.35
+    },
+    "LLY": {
+      "sector": "Healthcare",
+      "market_cap": 979640254464,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 11.444802276407383,
+        "sigma": 16.872495781267478,
+        "beat_rate": 0.625,
+        "n": 24,
+        "consistency": 0.68
+      },
+      "n_analysts": 20,
+      "dispersion": 0.136,
+      "kappa": 0.612,
+      "current_pred_surprise_pct": 6.29,
+      "current_sigma": 23.06
+    },
+    "LULU": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 12691920896,
+      "bucket": "small",
+      "fingerprint": {
+        "mu": 6.708283563056591,
+        "sigma": 10.332091382018884,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 0.65
+      },
+      "n_analysts": 17,
+      "dispersion": 0.116,
+      "kappa": 0.606,
+      "current_pred_surprise_pct": 3.69,
+      "current_sigma": 13.96
+    },
+    "MA": {
+      "sector": "Financial Services",
+      "market_cap": 432770547712,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 5.06109138938508,
+        "sigma": 6.085781413809296,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.83
+      },
+      "n_analysts": 28,
+      "dispersion": 0.05,
+      "kappa": 0.848,
+      "current_pred_surprise_pct": 2.78,
+      "current_sigma": 6.91
+    },
+    "MCD": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 197954027520,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.7143462825924372,
+        "sigma": 6.654899080439413,
+        "beat_rate": 0.6666666666666666,
+        "n": 24,
+        "consistency": 0.26
+      },
+      "n_analysts": 29,
+      "dispersion": 0.081,
+      "kappa": 0.801,
+      "current_pred_surprise_pct": 0.94,
+      "current_sigma": 7.93
+    },
+    "META": {
+      "sector": "Communication Services",
+      "market_cap": 1465228591104,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 11.243638965567726,
+        "sigma": 13.271940789740922,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.85
+      },
+      "n_analysts": 46,
+      "dispersion": 0.387,
+      "kappa": 0.504,
+      "current_pred_surprise_pct": 6.18,
+      "current_sigma": 22.56
+    },
+    "MRK": {
+      "sector": "Healthcare",
+      "market_cap": 281238929408,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 8.13884797008852,
+        "sigma": 11.880669984089002,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.69
+      },
+      "n_analysts": 5,
+      "dispersion": 2.226,
+      "kappa": 0.119,
+      "current_pred_surprise_pct": 4.48,
+      "current_sigma": 50.51
+    },
+    "MS": {
+      "sector": "Financial Services",
+      "market_cap": 352002670592,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 15.208140555654694,
+        "sigma": 15.672681092872683,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.97
+      },
+      "n_analysts": 14,
+      "dispersion": 0.195,
+      "kappa": 0.403,
+      "current_pred_surprise_pct": 8.36,
+      "current_sigma": 24.6
+    },
+    "MSFT": {
+      "sector": "Technology",
+      "market_cap": 2818348154880,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 6.512949533475519,
+        "sigma": 5.791564747304671,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 1.12
+      },
+      "n_analysts": 31,
+      "dispersion": 0.194,
+      "kappa": 0.593,
+      "current_pred_surprise_pct": 3.58,
+      "current_sigma": 8.32
+    },
+    "MU": {
+      "sector": "Technology",
+      "market_cap": 1278839095296,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 13.637098988110568,
+        "sigma": 20.035964798747944,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 0.68
+      },
+      "n_analysts": 31,
+      "dispersion": 0.839,
+      "kappa": 0.48,
+      "current_pred_surprise_pct": 7.5,
+      "current_sigma": 43.93
+    },
+    "NFLX": {
+      "sector": "Communication Services",
+      "market_cap": 325831589888,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.2914067385614982,
+        "sigma": 20.667207112389153,
+        "beat_rate": 0.6666666666666666,
+        "n": 24,
+        "consistency": 0.06
+      },
+      "n_analysts": 34,
+      "dispersion": 0.114,
+      "kappa": 0.75,
+      "current_pred_surprise_pct": 0.71,
+      "current_sigma": 25.94
+    },
+    "NKE": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 66936094720,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 30.07237415159305,
+        "sigma": 21.596304077929375,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 1.39
+      },
+      "n_analysts": 23,
+      "dispersion": 0.808,
+      "kappa": 0.431,
+      "current_pred_surprise_pct": 16.54,
+      "current_sigma": 47.69
+    },
+    "NOW": {
+      "sector": "Technology",
+      "market_cap": 98015518720,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 7.715084013043518,
+        "sigma": 5.774342675433572,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 1.34
+      },
+      "n_analysts": 38,
+      "dispersion": 0.21,
+      "kappa": 0.584,
+      "current_pred_surprise_pct": 4.24,
+      "current_sigma": 8.43
+    },
+    "NVDA": {
+      "sector": "Technology",
+      "market_cap": 5103122644992,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 6.910652836026493,
+        "sigma": 8.186641547447213,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 0.84
+      },
+      "n_analysts": 40,
+      "dispersion": 0.081,
+      "kappa": 0.824,
+      "current_pred_surprise_pct": 3.8,
+      "current_sigma": 9.64
+    },
+    "ORCL": {
+      "sector": "Technology",
+      "market_cap": 530026528768,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 7.064972340341014,
+        "sigma": 8.256833365293394,
+        "beat_rate": 0.75,
+        "n": 24,
+        "consistency": 0.86
+      },
+      "n_analysts": 36,
+      "dispersion": 0.153,
+      "kappa": 0.674,
+      "current_pred_surprise_pct": 3.89,
+      "current_sigma": 11.08
+    },
+    "PEP": {
+      "sector": "Consumer Defensive",
+      "market_cap": 194132951040,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 2.963535928797417,
+        "sigma": 3.4361764118469433,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.86
+      },
+      "n_analysts": 17,
+      "dispersion": 0.184,
+      "kappa": 0.476,
+      "current_pred_surprise_pct": 1.63,
+      "current_sigma": 5.18
+    },
+    "PFE": {
+      "sector": "Healthcare",
+      "market_cap": 143682977792,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 27.793693747391394,
+        "sigma": 16.572398970544032,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 1.68
+      },
+      "n_analysts": 18,
+      "dispersion": 0.221,
+      "kappa": 0.444,
+      "current_pred_surprise_pct": 15.29,
+      "current_sigma": 26.01
+    },
+    "PLTR": {
+      "sector": "Technology",
+      "market_cap": 307982663680,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 12.058951152195878,
+        "sigma": 27.869187978183486,
+        "beat_rate": 0.782608695652174,
+        "n": 23,
+        "consistency": 0.43
+      },
+      "n_analysts": 23,
+      "dispersion": 0.232,
+      "kappa": 0.498,
+      "current_pred_surprise_pct": 6.63,
+      "current_sigma": 42.98
+    },
+    "PYPL": {
+      "sector": "Financial Services",
+      "market_cap": 37498302464,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 6.367986185717791,
+        "sigma": 7.798530310257183,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.82
+      },
+      "n_analysts": 34,
+      "dispersion": 0.187,
+      "kappa": 0.61,
+      "current_pred_surprise_pct": 3.5,
+      "current_sigma": 11.06
+    },
+    "QCOM": {
+      "sector": "Technology",
+      "market_cap": 238319943680,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 4.85804180978541,
+        "sigma": 6.496350244025914,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 0.75
+      },
+      "n_analysts": 31,
+      "dispersion": 0.165,
+      "kappa": 0.64,
+      "current_pred_surprise_pct": 2.67,
+      "current_sigma": 8.94
+    },
+    "SBUX": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 114710806528,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": -2.0417132063046717,
+        "sigma": 15.695172205348864,
+        "beat_rate": 0.5416666666666666,
+        "n": 24,
+        "consistency": 0.13
+      },
+      "n_analysts": 26,
+      "dispersion": 0.277,
+      "kappa": 0.49,
+      "current_pred_surprise_pct": -1.12,
+      "current_sigma": 25.05
+    },
+    "SLB": {
+      "sector": "Energy",
+      "market_cap": 71897325568,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 3.233415045851295,
+        "sigma": 12.161127848828642,
+        "beat_rate": 0.9583333333333334,
+        "n": 24,
+        "consistency": 0.27
+      },
+      "n_analysts": 22,
+      "dispersion": 0.248,
+      "kappa": 0.474,
+      "current_pred_surprise_pct": 1.78,
+      "current_sigma": 19.17
+    },
+    "SYF": {
+      "sector": "Financial Services",
+      "market_cap": 25315225600,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 12.510543996811059,
+        "sigma": 20.26719948158573,
+        "beat_rate": 0.75,
+        "n": 24,
+        "consistency": 0.62
+      },
+      "n_analysts": 15,
+      "dispersion": 0.239,
+      "kappa": 0.372,
+      "current_pred_surprise_pct": 6.88,
+      "current_sigma": 33.24
+    },
+    "TGT": {
+      "sector": "Consumer Defensive",
+      "market_cap": 59380948992,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 6.618642989765152,
+        "sigma": 25.29199015443866,
+        "beat_rate": 0.75,
+        "n": 24,
+        "consistency": 0.26
+      },
+      "n_analysts": 31,
+      "dispersion": 0.318,
+      "kappa": 0.498,
+      "current_pred_surprise_pct": 3.64,
+      "current_sigma": 41.28
+    },
+    "TSLA": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 1504129843200,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 1.4479224151092884,
+        "sigma": 21.056507105715696,
+        "beat_rate": 0.5833333333333334,
+        "n": 24,
+        "consistency": 0.07
+      },
+      "n_analysts": 25,
+      "dispersion": 0.713,
+      "kappa": 0.449,
+      "current_pred_surprise_pct": 0.8,
+      "current_sigma": 44.01
+    },
+    "UAA": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 2583528960,
+      "bucket": "small",
+      "fingerprint": {
+        "mu": 20.80880955546897,
+        "sigma": 30.82299897758526,
+        "beat_rate": 0.8333333333333334,
+        "n": 24,
+        "consistency": 0.68
+      },
+      "n_analysts": 18,
+      "dispersion": 0.595,
+      "kappa": 0.366,
+      "current_pred_surprise_pct": 11.44,
+      "current_sigma": 62.8
+    },
+    "UNH": {
+      "sector": "Healthcare",
+      "market_cap": 364129550336,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 2.5826558349897,
+        "sigma": 8.23323291942816,
+        "beat_rate": 0.9166666666666666,
+        "n": 24,
+        "consistency": 0.31
+      },
+      "n_analysts": 23,
+      "dispersion": 0.202,
+      "kappa": 0.533,
+      "current_pred_surprise_pct": 1.42,
+      "current_sigma": 12.24
+    },
+    "UPS": {
+      "sector": "Industrials",
+      "market_cap": 89131655168,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 8.185446951474939,
+        "sigma": 14.698076682332358,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.56
+      },
+      "n_analysts": 21,
+      "dispersion": 0.188,
+      "kappa": 0.531,
+      "current_pred_surprise_pct": 4.5,
+      "current_sigma": 21.67
+    },
+    "V": {
+      "sector": "Financial Services",
+      "market_cap": 622326579200,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 3.707303860175023,
+        "sigma": 3.4540054998589036,
+        "beat_rate": 1.0,
+        "n": 24,
+        "consistency": 1.07
+      },
+      "n_analysts": 28,
+      "dispersion": 0.031,
+      "kappa": 0.875,
+      "current_pred_surprise_pct": 2.04,
+      "current_sigma": 3.81
+    },
+    "WMT": {
+      "sector": "Consumer Defensive",
+      "market_cap": 932527669248,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 3.474060497007498,
+        "sigma": 10.50177695777402,
+        "beat_rate": 0.875,
+        "n": 24,
+        "consistency": 0.33
+      },
+      "n_analysts": 33,
+      "dispersion": 0.081,
+      "kappa": 0.814,
+      "current_pred_surprise_pct": 1.91,
+      "current_sigma": 12.43
+    },
+    "XOM": {
+      "sector": "Energy",
+      "market_cap": 571215183872,
+      "bucket": "large",
+      "fingerprint": {
+        "mu": 5.467045833102738,
+        "sigma": 12.53548804062557,
+        "beat_rate": 0.7916666666666666,
+        "n": 24,
+        "consistency": 0.44
+      },
+      "n_analysts": 18,
+      "dispersion": 0.946,
+      "kappa": 0.366,
+      "current_pred_surprise_pct": 3.01,
+      "current_sigma": 30.4
+    },
+    "YUM": {
+      "sector": "Consumer Cyclical",
+      "market_cap": 41891672064,
+      "bucket": "mid",
+      "fingerprint": {
+        "mu": 2.3992365057957254,
+        "sigma": 13.401742087214716,
+        "beat_rate": 0.5833333333333334,
+        "n": 24,
+        "consistency": 0.18
+      },
+      "n_analysts": 24,
+      "dispersion": 0.083,
+      "kappa": 0.766,
+      "current_pred_surprise_pct": 1.32,
+      "current_sigma": 16.29
+    }
+  },
+  "cwsf_validation": {
+    "n": 1237,
+    "cwsf_mae": 9.76,
+    "baseline_zero_mae": 12.24,
+    "directional_pct": 83
+  }
+}

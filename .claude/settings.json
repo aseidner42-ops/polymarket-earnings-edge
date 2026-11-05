@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open \"/Users/abrahamseidner/claude code/claude code\")",
+      "Bash(python3 -c \"import urllib.request,json;d=json.loads\\(urllib.request.urlopen\\('http://127.0.0.1:8000/api/edge_status',timeout=4\\).read\\(\\)\\);print\\('has_edge=',d['has_edge']\\); print\\('edges:',d['edges']\\)\")",
+      "Bash(osascript -e 'display notification \"test2\" with title \"EE test2\" sound name \"Ping\"')",
+      "Bash(echo \"exit=$?\")",
+      "Bash(open \"x-apple.systempreferences:com.apple.preference.notifications\")",
+      "Bash(defaults read *)"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+2026-10-30T07:00:39: EDGE CONFIRMED — pnl/$1 0.394 over 351 bets, 95% CI [0.045, 0.744] (low>0), beats_crowd True.
+RETRACTED 2026-11-03: this verdict was a scoring artifact, not an edge.
+  - the same earnings print was counted 2x (SBUX 2026-10-29 +28.39 twice; CBRE +7.38 twice)
+  - 8 DISPUTED-RESOLUTION rows counted as clean wins (mean +3.11/$1)
+  - the q>0.02 phantom floor admitted q=0.030/0.034 "fills" paying 32:1 with no real depth
+  Top 5 bets carried 89% of all P&L; mean ex-top-5 was +0.036.
+  Corrected: +0.011/$1 over 272 independent bets, bootstrap CI [-0.19,+0.24]. NO PROVEN EDGE.
+  Flag retired so the app stops claiming "WE'RE GOOD". It can re-fire if a real edge appears.
