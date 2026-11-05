@@ -135,6 +135,24 @@ paper, measuring whether fills arrive precisely when I'm wrong.
 
 ---
 
+## Postscript: the same error, in the tool built to catch it
+
+Three days after the retraction I rebuilt the replication test for the academic paper the
+project is based on. Its verdict function checked whether each leg of the hypothesis
+pointed the predicted **direction** — and on real data it reported *"both legs point the
+predicted way"* off a reversal of **−0.16% with t = −0.23**. Noise wearing a minus sign.
+
+I caught it, required significance instead of sign, and left a comment in the code saying
+what happened. The corrected result is more interesting than either the original null or
+the false positive: over 1,796 events the pre-announcement **buying pressure replicates at
+t = 2.58**, while the **reversal — the half that would actually pay — does not appear at
+all** in liquid large caps.
+
+The point of including this: the failure mode is not a one-off bug. It is a standing
+tendency to accept a result that points the right way, and it got past me while I was
+actively building a tool whose only job was to test for it. That is why the checks live in
+code with regression tests, rather than in my intentions.
+
 ## Why I'm presenting the failure
 
 Because the alternative was presenting the false positive, and I'd rather be the person who

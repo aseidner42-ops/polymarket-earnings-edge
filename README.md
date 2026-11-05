@@ -32,6 +32,13 @@ make money.
 
 1,047 resolved forward predictions, logged before the events, scored after.
 
+<img src="docs/calibration-light.svg#gh-light-mode-only" width="620" alt="Calibration curve: model vs market price">
+<img src="docs/calibration-dark.svg#gh-dark-mode-only" width="620" alt="Calibration curve: model vs market price">
+
+Both curves sit above the diagonal: the model and the market alike under-predict how often
+these outcomes occur. The model is closer to it — that is the Brier win — but neither is
+well calibrated, and saying so matters more than the win.
+
 The gap between row 1 and row 3 is the whole story: **being better calibrated than a market
 is not the same as being able to profit from it.** The difference is spread, liquidity and
 fillability, and this project is largely a record of learning exactly how much that costs.
@@ -111,9 +118,16 @@ Kept visible deliberately — they are the most informative part.
 - **Mispriced every GAAP contract** — ~22% of markets resolve on GAAP EPS while all our
   consensus data is non-GAAP. The mismatch produced a 49-point "edge" on UBER that was a
   unit error. Now refused outright rather than priced
-- **Could not reproduce the core paper.** Kelly (2016) predicts post-earnings reversal; on
-  our data the effect is +0.003 with t = 0.33. Possibly our implementation — recorded
-  either way
+- **Blamed the data before the code.** I reported that Kelly (2016) failed to replicate
+  (+0.003, t = 0.33) and flagged it as *possibly* our implementation. It was our
+  implementation: no announcement-timing alignment, no market adjustment, and the wrong
+  variable. Rebuilt to spec over 1,796 events, the buying-pressure leg replicates at
+  **t = 2.58**; the reversal leg does not. Half the mechanism is real — the half that
+  would pay is the half we cannot find
+- **Wrote the same bug into the replication harness.** Its verdict function checked the
+  *sign* of each leg, not significance, and duly announced "both legs point the predicted
+  way" off a reversal of −0.16% at **t = −0.23**. Caught and fixed. The instinct to accept
+  a favourable sign got past me while I was actively building a tool to test for it
 
 ---
 
@@ -128,6 +142,8 @@ echo "FINNHUB_API_KEY=your_key" > .env        # Polymarket needs no key
 .venv/bin/python -m tools.cli forward         # score the live vault
 .venv/bin/python -m tools.cli serve           # local web app on :8000
 .venv/bin/python -m tools.test_validation     # 10 regression tests
+.venv/bin/python -m tools.kelly_replication   # replicate the core paper (1,796 events)
+.venv/bin/python -m tools.make_figures        # redraw the calibration figure
 ```
 
 ---
