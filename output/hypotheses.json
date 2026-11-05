@@ -48,6 +48,19 @@
       "logging_note_tag": "favzone-fwd",
       "status": "OPEN - forward accumulation from 2026-11-05. NO tradeable claim until powered.",
       "honest_notes": "Two caveats kept in writing. (1) The literature's +2.6% belongs to MAKERS; we are a TAKER, the side the same paper shows does worse - so our expected effect is SMALLER than 2.6%, and the required n correspondingly LARGER. (2) Our own favorites subset is currently +0.033/$1 on n=117 with CI [-0.087,+0.148] - consistent with the hypothesis and equally consistent with zero. That subset is PRIOR data and does not count toward this test."
+    },
+    {
+      "id": "maker_fill_v1",
+      "registered_at": "2026-11-05",
+      "scoring_starts_at": "2026-11-05",
+      "route": "C - liquidity provision rather than liquidity taking",
+      "claim": "Posting fair-value quotes 1c inside the touch on FAVORITE purchases (contract held costs >=0.50) in books with >=$25 of size gets filled often enough to matter, and those fills are NOT adversely selected - i.e. the spread earned is not more than offset by fills arriving when we are wrong.",
+      "rationale": "Measured on live books the mean spread is 8c while the documented taker edge is 2.6% - the spread is 3.1x the edge and we pay it every trade. Burgi-Deng-Whelan (46,282 Kalshi contracts) find the positive return belongs to MAKERS and the favorite-longshot bias is worse on the TAKER side. This tests whether we have been on the wrong side of the book.",
+      "success_criterion": "fill rate > 0 AND >=30 resolved fills AND realised P&L 95% bootstrap CI-low > 0 AND positive after removing the top 5 wins",
+      "kill_criterion": "EITHER >=30 resolved fills with 95% CI-high < 0 (adversely selected), OR >=60 quotes posted over >=3 calendar weeks with ZERO fills. The second case is a REAL FINDING, not an inconclusive one: it means no counterparty will trade with us at these prices and sizes, which closes the maker route as decisively as losing money would.",
+      "logging_note_tag": "paper-maker",
+      "status": "OPEN - paper only, no orders placed, accumulating from 2026-11-05",
+      "honest_notes": "Fill detection requires the market to CROSS our quoted price and ignores queue position, so measured fill rates are an UPPER BOUND; real fills would be fewer. Spread earned is measured from the mid at quote time. No capital is at risk and no orders are placed."
     }
   ],
   "observed_not_registered": {
@@ -106,8 +119,14 @@
         "n_trials": "see autofit history",
         "what": "autofit weight fits adopt/decline on a reused OOS split",
         "outcome": "adaptive overfitting risk acknowledged 2026-09-21; block-bootstrap gate added."
+      },
+      {
+        "date": "2026-11-05",
+        "n_trials": 6,
+        "what": "cost-bucket sweep informing favorite_zone_v1",
+        "outcome": "provenance is the external Kalshi paper, not this sweep"
       }
     ],
-    "running_total_subgroup_trials": 26
+    "running_total_subgroup_trials": 32
   }
 }
