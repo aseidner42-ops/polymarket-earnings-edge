@@ -25,12 +25,17 @@ make money.
 
 | Claim | Status |
 |---|---|
-| Forecasts earnings outcomes better than the market price | **Supported.** Brier **0.1544** vs market **0.1679**, n = 298 resolved bets, out of sample |
+| Forecasts earnings outcomes better than the market price | **Supported, and narrowing.** Brier **0.1581** vs market **0.1677**, n = 322 resolved bets, out of sample |
 | Directional accuracy | 76% — but the base rate is ~86%, so this is *not* the interesting number |
-| Makes money | **No.** Realised P&L **−0.023/$1**, 95% CI [−0.21, +0.19] |
-| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance, ~17,500 bets would be needed; ~2,400 if restricted to low-variance favourites |
+| Makes money | **No.** Realised P&L **−0.029/$1**, 95% CI [−0.21, +0.17] |
+| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.73), ~16,900 bets would be needed; ~2,400 if restricted to low-variance favourites |
 
-1,047 resolved forward predictions, logged before the events, scored after.
+1,341 forward predictions logged before the events, 1,163 resolved and scored after.
+
+The Brier gap is **shrinking as the sample grows** — 0.0135 at n = 298, 0.0096 at n = 322.
+The forecasting advantage is still there and still the only supported claim, but it is
+smaller than when it was first measured, and the honest reading is that some of the
+original margin was sample noise. Reported here rather than left at its best value.
 
 <img src="docs/calibration-light.svg#gh-light-mode-only" width="620" alt="Calibration curve: model vs market price">
 <img src="docs/calibration-dark.svg#gh-dark-mode-only" width="620" alt="Calibration curve: model vs market price">
