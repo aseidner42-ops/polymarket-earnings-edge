@@ -12,6 +12,7 @@ import re
 from typing import Any, Dict, List
 
 from tools import edge_log, predict as predict_mod, report
+from tools import validation as V
 from tools.polymarket_client import search_markets
 
 _TICKER_RE = re.compile(r"\(([A-Z]{1,5})\)")
@@ -103,6 +104,31 @@ def scan(limit: int = 12, outcome: str = None, threshold: float = None,
             # Default scan (no outcome): skip stock-price-target markets — direction is a
             # coin-flip on free data, so any "edge" there is noise. Keep eps/revenue only.
             if not fam and cfam == "stock":
+                continue
+            # PRICE PRE-FILTER (2026-11-10). A candidate priced outside [0.05, 0.95] is a
+            # market that has effectively already settled: the book has no size on the side
+            # we would buy, predict() returns no side, and the row logs as a non-bet. In the
+            # 2026-11-05..10 scans, 23 of 43 slots were spent this way — over half the daily
+            # predict budget producing nothing scoreable. The price is already in the search
+            # payload, so skipping costs nothing and frees those slots for live markets.
+            # NOT a quality judgement: these markets are still real, just no longer tradeable.
+            yp = c.get("yes_price")
+            if yp is not None and not (V.MIN_PRICE < float(yp) < 1 - V.MIN_PRICE):
+                continue
+            # GAAP PRE-FILTER (2026-11-10). Polymarket encodes the EPS basis in its own
+            # slug: "...-quarterly-earnings-gaap-eps-..." vs "...-nongaap-eps-...".
+            # predict() already REFUSES GAAP contracts (our consensus and surprise history
+            # are non-GAAP, so pricing one compares two different measures — it produced a
+            # fake 49-point "edge" on UBER). Spending a predict call to reach that refusal
+            # wastes a scan slot. Checked against every row carrying both fields: 8/8 agree
+            # with the basis parsed from the resolution text.
+            #
+            # Deliberately ASYMMETRIC: skip only when the slug says gaap EXPLICITLY, never
+            # on silence. A silent slug still gets predicted and refused by the real parser,
+            # so a mislabelled slug costs a wasted call, never a mispriced bet. This changes
+            # only WHERE the refusal happens, never WHETHER it happens.
+            _s = (c.get("slug") or "").lower()
+            if "gaap" in _s and "nongaap" not in _s and "non-gaap" not in _s:
                 continue
             seen.add(c["slug"])
             c["ticker"] = tk

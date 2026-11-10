@@ -24,6 +24,7 @@ FIELDS = [
     # (source/fiscal period) the prediction was made against, so resolution scores the frozen
     # target, never a re-fetched/revised one.
     "earnings_event_id", "consensus_eps_used", "consensus_source", "fiscal_year", "fiscal_quarter",
+    "slug",
     # EXECUTION CONTEXT (added 2026-11-03). Without these the vault cannot tell a bet that
     # could actually be filled from one that could not, so its P&L is fiction: the
     # 2026-10-30 "EDGE CONFIRMED" rested on $1 "fills" at q=0.030 in books with no size.
@@ -41,6 +42,11 @@ FIELDS = [
 def _exec_ctx(market: Dict[str, Any], edge: Dict[str, Any]) -> Dict[str, Any]:
     """Freeze the order-book state at the moment the bet is logged."""
     return {
+        # The market the bet was actually on. Without it a logged row cannot be traced
+        # back to its contract, so questions like "does the slug predict the GAAP basis"
+        # are unanswerable after the fact — which is exactly what blocked that check on
+        # 2026-11-10. Costs one column.
+        "slug": market.get("slug") or market.get("url"),
         "yes_bid": market.get("best_bid"),
         "yes_ask": market.get("best_ask"),
         "book_spread": market.get("book_spread") if market.get("book_spread") is not None
