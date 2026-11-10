@@ -1,5 +1,17 @@
 # Polymarket Earnings Edge
 
+**Forecasts earnings outcomes better than the market that prices them — Brier 0.1581 vs
+0.1677 over 322 resolved bets, out of sample.
+Does not make money: realised P&L −0.033/$1, and the spread is 3.1× the edge.
+In October it reported a confirmed edge; I audited it, found it was five lucky rows, and
+retracted it.**
+
+<img src="docs/calibration-light.svg#gh-light-mode-only" width="620" alt="Calibration curve: the model's forecasts versus Polymarket's prices, over 322 resolved earnings bets">
+<img src="docs/calibration-dark.svg#gh-dark-mode-only" width="620" alt="Calibration curve: the model's forecasts versus Polymarket's prices, over 322 resolved earnings bets">
+
+→ **The retraction, in one page: [`CASE_STUDY.md`](CASE_STUDY.md)** — the most useful thing
+in this repo.
+
 A research system that tries to find mispriced earnings contracts on Polymarket — and, so
 far, has mostly succeeded at proving that its own findings were wrong.
 
@@ -37,11 +49,8 @@ The forecasting advantage is still there and still the only supported claim, but
 smaller than when it was first measured, and the honest reading is that some of the
 original margin was sample noise. Reported here rather than left at its best value.
 
-<img src="docs/calibration-light.svg#gh-light-mode-only" width="620" alt="Calibration curve: model vs market price">
-<img src="docs/calibration-dark.svg#gh-dark-mode-only" width="620" alt="Calibration curve: model vs market price">
-
-Both curves sit above the diagonal: the model and the market alike under-predict how often
-these outcomes occur. The model is closer to it — that is the Brier win — but neither is
+In the figure at the top, both curves sit above the diagonal: the model and the market
+alike under-predict how often these outcomes occur. The model is closer to it — that is the Brier win — but neither is
 well calibrated, and saying so matters more than the win.
 
 The gap between row 1 and row 3 is the whole story: **being better calibrated than a market
@@ -106,6 +115,37 @@ First measurement (2026-11-10): **fill rate 0.40, mean spread earned 6.79¢.** T
 only exists because the fill detector was broken in the direction that would have killed
 the experiment — see below. The decisive test is adverse selection, at 1 resolved fill of
 the 30 it needs.
+
+---
+
+## The next test, with the bar set in advance
+
+One question decides whether this project has a path to money: **when a resting quote gets
+filled, is it filled because we were wrong?** That is adverse selection, and it is the only
+thing that separates earning a spread from being picked off by people who know more.
+
+The criteria below were registered in `output/hypotheses.json` **before** the data existed,
+and scoring only counts bets logged after registration. They are written here so they
+cannot be quietly moved later.
+
+**`maker_fill_v1` — paper market making, no orders placed**
+
+| | |
+|---|---|
+| **Passes if** | ≥ 30 resolved fills **and** realised P&L 95% bootstrap CI-low > 0 **and** still positive after deleting the 5 best wins |
+| **Fails if** | ≥ 30 resolved fills **and** 95% CI-high < 0 — filled precisely when wrong |
+| **Progress** | **1 of 30 resolved fills.** 10 quotes, 4 filled, fill rate 0.40, mean spread earned 6.79¢ |
+| **Expected to settle** | ~6–10 weeks at the measured quote rate |
+
+A second hypothesis, `strike_gap_v1`, runs alongside it at **14 of 30**.
+
+**What would make me abandon the whole approach:** if the maker is adversely selected, all
+five routes to a money edge are exhausted — signal disagreements are anti-predictive, the
+stock-trading pivot is dead (beat probability vs post-earnings return correlates +0.002),
+the favourite zone needs ~9 years at the measured listing rate, and cross-venue arbitrage
+against Kalshi turned out to have **no counterpart instrument at all** (all 25,000 open
+Kalshi markets walked; zero company EPS contracts). That outcome gets written up the same
+way the retraction was.
 
 ---
 

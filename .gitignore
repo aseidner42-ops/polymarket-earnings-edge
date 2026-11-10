@@ -55,3 +55,14 @@ output/POTENTIAL_EDGE.txt
 output/FORWARD_DONE.txt
 output/EDGE_DISPROVEN.txt
 output/FADE_PROVEN.txt
+
+# Obsidian "Untitled N" variants (the unnumbered ones are listed above; the numbered
+# copies slipped past that pattern and one of them, "Untitled 1.canvas", was the single
+# stray file actually tracked in the repo).
+/Untitled*.canvas
+/Untitled*.base
+/Untitled*/
+
+# A script once wrote to a literal, unexpanded $HOME and left a directory named "$HOME"
+# inside the project. Ignored so a repeat is never committed.
+/$HOME/
