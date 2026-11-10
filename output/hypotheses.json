@@ -152,5 +152,20 @@
     "honest_limit": "The price path is a PROXY, not a trade print: Polymarket exposes no public trades endpoint (data-api /trades is 410, CLOB /trades needs auth). A price touching our quote means a counterparty transacted there, not that we were at the front of the queue. Real fills would be LOWER than 40%, never higher, so this biases toward keeping the pivot alive -- which is the direction that costs us more work, not less."
    }
   ]
+ },
+ "closed_routes": {
+  "_what_this_is": "Research routes investigated and CLOSED, with the evidence that closed them. Kept so a route is not re-opened on enthusiasm, and so the reason is auditable rather than remembered.",
+  "routes": [
+   {
+    "route": "Cross-venue arbitrage, Polymarket vs Kalshi, on earnings EPS",
+    "closed_on": "2026-11-10",
+    "why_it_was_attractive": "A price gap on the SAME event is arithmetic, not a forecast. It would have escaped the power problem entirely: no 2,400-bet sample needed, because the edge does not depend on our model being right about anything.",
+    "how_it_was_tested": "Kalshi's public API needs no key. Walked the full series catalogue (2,400+ series across 12 pages) and then all 25,000 OPEN markets, matching on EPS / earnings per share / quarterly revenue.",
+    "result": "ZERO company EPS-beat markets on Kalshi. The 265 'earnings'-flavoured series are almost all KXEARNINGSMENTION* -- markets on what a company will SAY on its earnings call, which is an NLP problem on call transcripts, not an EPS outcome and not something our model prices. The 63 apparent non-mention hits were string collisions: 'eps' inside Epstein, DeepSeek and Pepsi. Of 25,000 open markets the single match was a tennis market whose random ID happens to end in EPS.",
+    "conclusion": "There is no counterpart instrument, so there is no gap to arbitrage. The route is not hard, it is empty. Closed.",
+    "cost_of_finding_out": "~30 unauthenticated API calls, no money, one session.",
+    "what_would_reopen_it": "Kalshi (or another CFTC-regulated venue) listing company EPS contracts on tickers Polymarket also lists. Re-testable by re-running the same catalogue walk; nothing else about the idea needs revisiting."
+   }
+  ]
  }
 }

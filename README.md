@@ -27,8 +27,8 @@ make money.
 |---|---|
 | Forecasts earnings outcomes better than the market price | **Supported, and narrowing.** Brier **0.1581** vs market **0.1677**, n = 322 resolved bets, out of sample |
 | Directional accuracy | 76% — but the base rate is ~86%, so this is *not* the interesting number |
-| Makes money | **No.** Realised P&L **−0.029/$1**, 95% CI [−0.21, +0.17] |
-| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.73), ~16,900 bets would be needed; ~2,400 if restricted to low-variance favourites |
+| Makes money | **No.** Realised P&L **−0.033/$1**, 95% CI [−0.21, +0.17], n = 319 |
+| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.73), ~17,000 bets would be needed; ~2,400 if restricted to low-variance favourites — which the measured listing rate puts about **9 years** away |
 
 1,341 forward predictions logged before the events, 1,163 resolved and scored after.
 
@@ -100,6 +100,11 @@ documented edge is **2.6%** — *the spread is 3.1× the edge, and we pay it eve
 module posts fair-value quotes on paper and measures what would have filled, above all
 whether fills arrive precisely when we are wrong. No orders are placed.
 
+First measurement (2026-11-10): **fill rate 0.40, mean spread earned 6.79¢.** That number
+only exists because the fill detector was broken in the direction that would have killed
+the experiment — see below. The decisive test is adverse selection, at 1 resolved fill of
+the 30 it needs.
+
 ---
 
 ## Hard rules, enforced in code
@@ -133,6 +138,22 @@ Kept visible deliberately — they are the most informative part.
   *sign* of each leg, not significance, and duly announced "both legs point the predicted
   way" off a reversal of −0.16% at **t = −0.23**. Caught and fixed. The instinct to accept
   a favourable sign got past me while I was actively building a tool to test for it
+- **Scored refusals as bets.** Six scorers fell back to `side = row["side"] or ("YES" if
+  model_prob >= q else "NO")`, inventing the side the system had *explicitly declined* to
+  take. Three rows reading "nothing tradeable" were booked as real positions. Fixing it
+  moved P&L from −0.029 to −0.033 — they were winners
+- **Nearly killed a live experiment on a broken instrument.** The paper maker read 0 fills
+  on 10 quotes, which is one of its registered kill conditions. The detector was a
+  once-daily book snapshot that needed the ask to collapse across a 40¢ spread, and a real
+  seller hitting our bid would leave no visible ask at all. Rebuilt on the price path:
+  **0.00 → 0.40**. My first fix queried a parameter pair the endpoint answers with HTTP
+  400 and silently did nothing; my second counted prices from *before the quote existed*
+  and read 9 of 10. The honest number is 4 of 10
+- **Chased an arbitrage that does not exist.** Cross-venue arb against Kalshi looked like
+  the one route that escapes the sample-size problem. Walked all 25,000 open Kalshi
+  markets: **zero company EPS contracts.** The 265 "earnings" series are markets on what
+  a firm will *say* on its call; the apparent EPS matches were `eps` inside *Epstein*,
+  *DeepSeek* and *Pepsi*. The route is not hard, it is empty
 
 ---
 

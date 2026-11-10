@@ -126,14 +126,16 @@ model predicts earnings outcomes better than the market that prices them — tho
 margin has narrowed from 0.0135 to 0.0096 as the sample grew from 298 bets to 322, so part
 of the original gap was noise.
 
-It still doesn't make money — realised P&L **−0.029/$1**. The gap between those two facts is
+It still doesn't make money — realised P&L **−0.033/$1**. The gap between those two facts is
 the most useful thing the project taught me: **being better calibrated than a market is not
 the same as being able to profit from it.** The difference is spread, liquidity and
 fillability. On live books the mean bid-ask spread is 8¢ while the documented edge is 2.6%.
 The spread is 3.1× the edge, and as a taker I paid it on every single trade.
 
 That reframing is now the live experiment: posting quotes instead of lifting them, on
-paper, measuring whether fills arrive precisely when I'm wrong.
+paper, measuring whether fills arrive precisely when I'm wrong. First measurement: a 40%
+fill rate earning 6.79¢ of spread — a number that existed only after finding the fill
+detector had been reporting zero because it could not see the thing it measured.
 
 ---
 
