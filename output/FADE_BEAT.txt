@@ -1,1 +1,0 @@
-2026-08-05T07:02:32  SOUN eps_beat: market 0.9995 BEAT vs model 0.45 MISS -> side NO · trustworthy=False SCAR=7 maxUSD=250.0 | https://polymarket.com/event/soun-quarterly-earnings-nongaap-eps-08-05-2026-neg0pt04

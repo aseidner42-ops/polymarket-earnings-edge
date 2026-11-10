@@ -35,3 +35,17 @@ Untitled.base
 Untitled.canvas
 Pump math theories and papers.md
 2026-*.md
+
+# Obsidian graph layout — per-machine, rewritten on every open
+.obsidian/graph.json
+
+# Runtime notify flags written by the launchd jobs (pure triggers, not evidence).
+# output/EDGE_CONFIRMED.retracted_2026-11-03.txt is tracked DELIBERATELY: it is
+# the record of the retraction, not a live flag.
+output/EDGE_FOUND.txt
+output/FADE_BEAT.txt
+output/FIT_SMG_READY.txt
+output/POTENTIAL_EDGE.txt
+output/FORWARD_DONE.txt
+output/EDGE_DISPROVEN.txt
+output/FADE_PROVEN.txt

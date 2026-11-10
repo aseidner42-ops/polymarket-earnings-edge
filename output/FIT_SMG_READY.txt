@@ -1,1 +1,0 @@
-2026-07-24T07:04:37: 40 bets resolved — enough to fit SMG together. model_brier 0.1652 vs market 0.1431, pnl/$1 0.224, beats_crowd True.
