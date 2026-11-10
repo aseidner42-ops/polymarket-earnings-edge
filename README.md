@@ -83,10 +83,12 @@ surprise, analyst-revision momentum, dispersion, accruals, Piotroski F-score,
 pre-earnings price pressure), combined by a transparent logistic blend whose weights are
 refit weekly out-of-sample and adopted only if they beat the incumbent on held-out data.
 
-**Validation** (`tools/validation.py`) — a strategy-agnostic harness, with 10 regression
+**Validation** (`tools/validation.py`) — a strategy-agnostic harness, with 11 regression
 tests, where every gate is a past failure turned into a rule:
 
 - independence (one payoff per event)
+- **a refusal is not a bet** (a blank side means the system declined; scoring it would
+  invent the position)
 - fillability (was there real size at a real price)
 - price realism (pay the touch, never the mid)
 - tail robustness (does the mean survive deleting its 5 best wins)
@@ -167,7 +169,8 @@ echo "FINNHUB_API_KEY=your_key" > .env        # Polymarket needs no key
 .venv/bin/python -m tools.cli backtest        # calibration over history
 .venv/bin/python -m tools.cli forward         # score the live vault
 .venv/bin/python -m tools.cli serve           # local web app on :8000
-.venv/bin/python -m tools.test_validation     # 10 regression tests
+.venv/bin/python -m tools.test_validation     # 11 regression tests
+.venv/bin/python -c "from tools import maker; print(maker.daily())"   # paper maker cycle
 .venv/bin/python -m tools.kelly_replication   # replicate the core paper (1,796 events)
 .venv/bin/python -m tools.make_figures        # redraw the calibration figure
 ```
