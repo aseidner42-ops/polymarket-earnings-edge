@@ -49,6 +49,7 @@ the only one where a result would be interpretable at a sample size we can colle
 from __future__ import annotations
 
 import csv
+from collections import Counter
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -64,6 +65,10 @@ FIELDS = [
     "size_usd", "scar", "eps_basis", "rationale",
     # filled in later by score_quotes
     "resolved", "filled", "fill_price", "spread_earned", "outcome_actual", "pnl", "notes",
+    # WHICH test detected the fill. A daily book snapshot can only see a cross that happened
+    # to persist until the poll, so "zero fills" from that test alone is not evidence of
+    # anything. Recorded so the two detection methods can never be conflated.
+    "fill_method",
 ]
 
 # How far inside the touch we post. Quoting AT the touch is just being a taker with extra
@@ -86,11 +91,23 @@ def fair_value(model_prob: float, scar: Optional[float], mid: float,
     return mid + lam * (float(model_prob) - mid)
 
 
-def build_quote(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _rej(reasons, name: str) -> None:
+    """Record why a market was not quoted, then reject it."""
+    if reasons is not None:
+        reasons[name] += 1
+    return None
+
+
+def build_quote(row: Dict[str, Any], reasons=None) -> Optional[Dict[str, Any]]:
     """Turn one scanned market into a quote, or None if we should not quote it.
 
     `row` is a scanner row (it already carries the book, model probability, SCAR, cost and
     basis). Every rejection is a documented rule, not a judgement call.
+
+    Pass a Counter as `reasons` to get the rejection tally. Without it the funnel is
+    invisible: on 2026-11-10 the quote log held 11 rows after 5 days with no way to tell
+    whether the cause was a thin universe or a filter set too tight, and the kill criterion
+    for maker_fill_v1 needs 60 quotes over 3 weeks to be reachable at all.
     """
     mkt_mid = row.get("market_prob")
     bid, ask = row.get("yes_bid"), row.get("yes_ask")
@@ -98,17 +115,17 @@ def build_quote(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         bid, ask = (row.get("market") or {}).get("best_bid"), (row.get("market") or {}).get("best_ask")
     model = row.get("model_prob")
     if mkt_mid is None or model is None or bid is None or ask is None:
-        return None
+        return _rej(reasons, "no book or no model prob")
     # Same exclusions the scorer uses, so quoting and scoring never disagree.
     if not (V.MIN_PRICE < float(mkt_mid) < 1 - V.MIN_PRICE):
-        return None
+        return _rej(reasons, "price outside [0.05,0.95] (settled)")
     if (row.get("eps_basis") or "") == "gaap":
-        return None                      # we cannot price a GAAP contract at all
+        return _rej(reasons, "GAAP contract (unpriceable)")
     spread = float(ask) - float(bid)
     if spread < MIN_SPREAD:
-        return None                      # not enough spread to be worth capturing
+        return _rej(reasons, f"spread < {MIN_SPREAD:.2f}")
     if V.executable(row.get("max_usd"), row.get("depth_usd")) is not True:
-        return None                      # no real size behind the quote
+        return _rej(reasons, "no executable size behind the quote")
 
     fv = fair_value(model, row.get("predictability"), float(mkt_mid))
     # Which side do we want to BE LONG if filled? Buy YES if fair value is above the mid.
@@ -126,11 +143,11 @@ def build_quote(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         our_bid = None
         edge = our_ask - fv
     if cost_if_filled < V.FAVORITE_COST:
-        return None                      # longshot purchase — out of scope by registration
+        return _rej(reasons, "longshot purchase (cost < 0.50) — out of registered scope")
     if not (0.01 < cost_if_filled < 0.99):
-        return None
+        return _rej(reasons, "degenerate cost")
     if edge < MIN_EDGE_VS_FAIR:
-        return None                      # our own price isn't far enough from fair value
+        return _rej(reasons, f"our price < {MIN_EDGE_VS_FAIR:.2f} from fair value")
 
     return {
         "quoted_at": datetime.now().isoformat(timespec="seconds"),
@@ -152,9 +169,19 @@ def build_quote(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     }
 
 
+LAST_REJECTIONS: "Counter[str]" = Counter()
+
+
 def build_sheet(rows: List[Dict[str, Any]], limit: int = 25) -> List[Dict[str, Any]]:
-    """Quotes for a scan, best edge-vs-fair first."""
-    out = [q for q in (build_quote(r) for r in rows) if q]
+    """Quotes for a scan, best edge-vs-fair first.
+
+    Side effect: the rejection tally for this call lands in LAST_REJECTIONS, so the
+    quote funnel can be read instead of inferred.
+    """
+    global LAST_REJECTIONS
+    reasons: "Counter[str]" = Counter()
+    out = [q for q in (build_quote(r, reasons) for r in rows) if q]
+    LAST_REJECTIONS = reasons
     out.sort(key=lambda q: -q["edge_vs_fair"])
     return out[:limit]
 
@@ -207,14 +234,28 @@ def check_fills(quotes: List[Dict[str, Any]], book_lookup) -> int:
         book = book_lookup(q.get("slug")) or {}
         bb, ba = _f(book.get("best_bid")), _f(book.get("best_ask"))
         ours_bid, ours_ask = _f(q.get("our_bid")), _f(q.get("our_ask"))
-        hit = False
+        hit, px, how = False, None, ""
         if ours_bid is not None and ba is not None and ba <= ours_bid:
-            hit, px = True, ours_bid
+            hit, px, how = True, ours_bid, "book_cross"
         elif ours_ask is not None and bb is not None and bb >= ours_ask:
-            hit, px = True, ours_ask
+            hit, px, how = True, ours_ask, "book_cross"
+        # The book test above is a SINGLE SNAPSHOT taken once a day while the quote rests
+        # continuously, so on its own it would miss any fill that did not happen to persist
+        # until the poll. Fall back to the minute-resolution price path over the quote's
+        # life: if price reached our quote at any point, a counterparty was transacting
+        # there. Weaker evidence than a cross, hence recorded separately and never mixed in.
+        if not hit:
+            path = _price_path(book.get("yes_token_id"), _quote_ts(q))
+            if path:
+                lows = [pp for _ts, pp in path]
+                if ours_bid is not None and min(lows) <= ours_bid:
+                    hit, px, how = True, ours_bid, "price_path"
+                elif ours_ask is not None and max(lows) >= ours_ask:
+                    hit, px, how = True, ours_ask, "price_path"
         if hit:
             q["filled"] = "yes"
             q["fill_price"] = px
+            q["fill_method"] = how
             mid = _f(q.get("mid"))
             # What liquidity provision paid us: distance from the mid at quote time.
             q["spread_earned"] = round(abs(mid - px), 4) if mid is not None else ""
@@ -294,13 +335,73 @@ def score_quotes(resolve_outcome) -> Dict[str, Any]:
 # Live wiring
 # ---------------------------------------------------------------------------
 def _live_book(slug: str) -> Dict[str, Any]:
-    """Current book for a slug, via the Polymarket client."""
+    """Current book for a slug, plus the YES token id for the price-path check."""
     from tools import polymarket_client as pc
     try:
         m = pc.get_market(slug) or {}
     except Exception:
         return {}
-    return {"best_bid": m.get("best_bid"), "best_ask": m.get("best_ask")}
+    toks = m.get("token_ids") or []
+    return {"best_bid": m.get("best_bid"), "best_ask": m.get("best_ask"),
+            "yes_token_id": toks[0] if toks else None}
+
+
+def _quote_ts(q: Dict[str, Any]) -> Optional[int]:
+    """Unix seconds the quote was posted — the earliest moment a fill could occur."""
+    from datetime import datetime as _dt
+    s = (q.get("quoted_at") or "").strip()
+    if not s:
+        return None
+    try:
+        return int(_dt.fromisoformat(s).timestamp())
+    except ValueError:
+        return None
+
+
+def _price_path(token_id: str, since_ts: Optional[int] = None) -> List[tuple]:
+    """Minute-resolution YES price path, newest window first. [] if unavailable.
+
+    Polymarket exposes no public trade prints (data-api /trades is 410, CLOB /trades needs
+    auth), but /prices-history returns a ~60-second price series without a key. If that
+    price ever reached our resting quote while it sat there, a counterparty was transacting
+    at our price and we would plausibly have been filled.
+
+    This is a PROXY, not a confirmed trade: the series is a price, not our queue position,
+    so a real maker could still have been behind other orders at the same price. It is used
+    only to decide whether "zero fills" is real or an artifact of polling once a day.
+    """
+    import urllib.request, json as _json
+    if not token_id:
+        return []
+    # The endpoint rejects some interval/fidelity pairs: interval=1w with fidelity=1 is a
+    # 400, which silently returned [] and made the whole price-path check a no-op the first
+    # time it shipped (caught 2026-11-10 by printing the point count instead of trusting it).
+    # Two valid windows, unioned: a week at hourly resolution covers the quote's life, a day
+    # at minute resolution catches brief touches the hourly series would smooth away.
+    out: List[tuple] = []
+    for interval, fidelity in (("1w", 60), ("1d", 1)):
+        url = (f"https://clob.polymarket.com/prices-history?market={token_id}"
+               f"&interval={interval}&fidelity={fidelity}")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "research-client"})
+            with urllib.request.urlopen(req, timeout=25) as r:
+                data = _json.loads(r.read().decode("utf8", "replace"))
+        except Exception:
+            continue
+        for pt in (data or {}).get("history", []) or []:
+            try:
+                ts, px = int(pt["t"]), float(pt["p"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            # ONLY prices from after the quote was posted. The 1w window reaches back days
+            # before the quote existed, and counting those as fills would book a trade that
+            # happened before we were in the market -- the same look-back error this project
+            # has already had to retract once. Without this filter 9 of 10 resting quotes
+            # read as filled; the filter is what makes the number mean anything.
+            if since_ts is not None and ts < since_ts:
+                continue
+            out.append((ts, px))
+    return out
 
 
 def _resolve(q: Dict[str, Any]) -> Optional[str]:
@@ -335,6 +436,9 @@ def daily(limit: int = 30) -> Dict[str, Any]:
         out["scanned"] = scan.get("scanned")
         out["quotes_built"] = len(sheet)
         out["quotes_logged"] = log_quotes(sheet)
+        # Why the other markets were not quoted — so a low quote count can be diagnosed
+        # (thin universe vs filters too tight) rather than guessed at.
+        out["rejected"] = dict(LAST_REJECTIONS)
         out["sheet"] = sheet
     except Exception as e:
         out["quote_error"] = str(e)
