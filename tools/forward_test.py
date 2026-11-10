@@ -304,7 +304,10 @@ def score_log(apply: bool = True) -> Dict[str, Any]:
             pnls, fav_pnls, wins = [], [], 0
             for v in mk:
                 q = v["market_prob"]
-                side = (v.get("side") or ("YES" if v["model_prob"] >= q else "NO"))
+                # A blank side is a REFUSAL, not a bet — never synthesise one (V.bet_side).
+                side = V.bet_side(v)
+                if side is None:
+                    continue
                 wins += (side == v["status"])
                 pnls.append(_pnl(side, q, v["status"]))
                 fav = "YES" if q >= 0.5 else "NO"           # benchmark: bet with the crowd
@@ -363,7 +366,9 @@ def edge_guard() -> Dict[str, Any]:
             # best (2026-11-03). Legacy rows have no basis recorded and are left as-is.
             if (r.get("eps_basis") or "") == "gaap":
                 continue
-            side = r.get("side") or ("YES" if mp >= q else "NO")
+            side = V.bet_side(r)
+            if side is None:          # refusal (no market / GAAP / no book / no edge)
+                continue
             try:
                 ne = float(r["net_edge"])
             except (TypeError, ValueError, KeyError):
@@ -512,8 +517,15 @@ def scorecard() -> Dict[str, Any]:
         pnls = []
         for r in mk:
             q = _f(r["market_prob"])
-            side = r.get("side") or ("YES" if _f(r["model_prob"]) >= q else "NO")
+            side = V.bet_side(r)
+            if side is None:          # refusal — scoring it would invent a bet
+                continue
             pnls.append(_pnl_per_1(side, q, r["actual_outcome"]))
+        # The Brier sample and the P&L sample are NOT the same size: a refused row still
+        # carries a forecast worth scoring for calibration, but no position worth scoring
+        # for money. Reporting one n for both let 3 invented bets hide inside "322".
+        out["pnl_n"] = len(pnls)
+        out["refusals_not_scored"] = out["bets"] - len(pnls)
         st = _robust_pnl(pnls, seed=6)
         out["realized_pnl_per_$1"] = st.get("mean")
         out["pnl_ci95"] = st.get("ci95")
@@ -577,7 +589,9 @@ def score_hypothesis(hyp_id: str) -> Dict[str, Any]:
             if _executable(r) is not True:
                 skipped_unexec += 1
                 continue
-            side = r.get("side") or ("YES" if mp >= q else "NO")
+            side = V.bet_side(r)
+            if side is None:
+                continue
 
             def _nf(k):
                 try:

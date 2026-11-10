@@ -69,6 +69,30 @@ DEFAULT_EFFECT = 0.026    # the effect size to power against, absent a better es
 
 
 # ---------------------------------------------------------------------------
+# Gate 2b — a refusal is not a bet
+# ---------------------------------------------------------------------------
+def bet_side(row: Dict[str, Any]) -> Optional[str]:
+    """The side actually recommended, or None if no bet was ever placed.
+
+    A blank side means the system REFUSED: no Polymarket market at all (the earnings-
+    calendar calibration rows), a GAAP-resolving contract our non-GAAP consensus cannot
+    price, a market with no live order book, or no edge above threshold.
+
+    Scorers used to fall back to `side = row["side"] or ("YES" if model_prob >= q else
+    "NO")`, which INVENTS the side the system explicitly declined to take and then books
+    a P&L for it. That manufactures a bet out of a refusal — the same class of error as
+    the 2026-10-30 retraction, where paper fills in untradeable books were scored as
+    real money.
+
+    Audited 2026-11-10: of 679 sideless resolved rows, 628 had no market, 39 had no live
+    book, and 12 were GAAP refusals. Not one was a genuine bet, so refusing to score them
+    discards no real evidence.
+    """
+    s = (row.get("side") or "").strip().upper()
+    return s if s in ("YES", "NO") else None
+
+
+# ---------------------------------------------------------------------------
 # Gate 3 — price realism
 # ---------------------------------------------------------------------------
 def contract_cost(side: str, q: float) -> float:

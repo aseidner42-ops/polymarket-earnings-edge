@@ -24,6 +24,7 @@ from datetime import datetime
 from datetime import date
 
 from tools import scar
+from tools import validation as V
 from tools.backtest import backtest, _logistic, FUND_SPREAD
 from tools.config import load_weights, OUTPUT_DIR, ROOT
 from tools import forward_test
@@ -238,7 +239,9 @@ def run(stamp: str) -> dict:
                 except (TypeError, ValueError, KeyError):
                     continue
                 mp = float(r["model_prob"]) if r.get("model_prob") not in (None, "", "None") else None
-                side = r.get("side") or ("YES" if (mp is not None and mp >= q) else "NO")
+                side = V.bet_side(r)      # blank side = refusal, not a bet
+                if side is None:
+                    continue
                 won = (side == r["actual_outcome"])
                 pnl = ((1 - q) / q - H if won else -1.0) if side == "YES" else ((q / (1 - q)) - H if won else -1.0)
                 smg_bets.append((ne, pnl))
@@ -271,7 +274,9 @@ def run(stamp: str) -> dict:
                     q = float(r["market_prob"]); mp = float(r["model_prob"])
                 except (TypeError, ValueError, KeyError):
                     continue
-                side = r.get("side") or ("YES" if mp >= q else "NO")
+                side = V.bet_side(r)      # blank side = refusal, not a fade
+                if side is None:
+                    continue
                 if side != "NO" or q < 0.65:      # fade signature: bet NO against a priced beat
                     continue
                 won = (r["actual_outcome"] == "NO")

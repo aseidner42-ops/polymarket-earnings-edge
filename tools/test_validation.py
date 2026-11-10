@@ -159,6 +159,31 @@ def test_assess_reports_exclusions():
     return ok
 
 
+def test_refusal_is_not_a_bet():
+    """The system refused; the scorer used to bet anyway.
+
+    Scorers fell back to `side = row["side"] or ("YES" if model_prob >= q else "NO")`,
+    which invents the side the system explicitly declined to take. Three resolved rows
+    reading "market resolved / no live order book — nothing tradeable" were being booked
+    as real P&L (found 2026-11-10). A refusal must score as nothing at all, not as a
+    coin-flip guess at what we would have done.
+    """
+    ok = _check("explicit YES is a bet", V.bet_side({"side": "YES"}) == "YES")
+    ok &= _check("explicit NO is a bet", V.bet_side({"side": "NO"}) == "NO")
+    ok &= _check("blank side is NOT a bet", V.bet_side({"side": ""}) is None)
+    ok &= _check("missing side is NOT a bet", V.bet_side({}) is None)
+    ok &= _check("None side is NOT a bet", V.bet_side({"side": None}) is None)
+    ok &= _check("whitespace side is NOT a bet", V.bet_side({"side": "   "}) is None)
+    ok &= _check("literal 'None' is NOT a bet", V.bet_side({"side": "None"}) is None)
+    ok &= _check("lowercase is normalised", V.bet_side({"side": "yes"}) == "YES")
+    # The refusal must not be rescued by a confident model_prob sitting beside it.
+    refusal = {"side": "", "model_prob": 0.95, "market_prob": 0.40,
+               "recommendation": "market resolved / no live order book — nothing tradeable"}
+    ok &= _check("a confident model_prob does not resurrect a refusal",
+                 V.bet_side(refusal) is None)
+    return ok
+
+
 def main():
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     print(f"validation harness — {len(tests)} regression tests\n")
