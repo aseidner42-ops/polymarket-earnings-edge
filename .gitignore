@@ -1,5 +1,10 @@
 # Secrets — never commit
+# Secrets. Matches .env and EVERY variant (.env.bak, .env.local, .env.2026-11-10...).
+# The bare pattern '.env' matches only that exact name: a .env.bak holding a still-live
+# API key sat outside it and was committable (caught 2026-11-10 during a key rotation).
 .env
+.env.*
+*.env
 credentials.json
 token.json
 
