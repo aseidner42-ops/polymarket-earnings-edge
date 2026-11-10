@@ -177,6 +177,18 @@ echo "FINNHUB_API_KEY=your_key" > .env        # Polymarket needs no key
 
 ---
 
+## License and scope
+
+MIT — see [`LICENSE`](LICENSE). The code is free to use, copy and modify.
+
+What is **not** transferable is the conclusion: this system has no demonstrated money
+edge, and anyone reusing it should read ["What is actually true, with
+numbers"](#what-is-actually-true-with-numbers) before pointing it at a market. Nothing
+here places an order, and the research guard refuses to call anything tradeable while
+realised P&L is not significantly positive.
+
+---
+
 ## Why it is built this way
 
 Probabilistic reasoning and deterministic execution are kept apart: markdown SOPs describe
