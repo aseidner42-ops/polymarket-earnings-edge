@@ -71,3 +71,4 @@ output/FADE_PROVEN.txt
 # A script once wrote to a literal, unexpanded $HOME and left a directory named "$HOME"
 # inside the project. Ignored so a repeat is never committed.
 /$HOME/
+notes/*Application Summary*
