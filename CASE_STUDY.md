@@ -1,7 +1,7 @@
 # Case study: retracting my own result
 
 **Project:** Polymarket Earnings Edge — a research system for pricing earnings contracts
-**Period:** June–November 2026 · ~8,000 lines of Python · 1,163 resolved forward predictions
+**Period:** June–November 2026 · ~9,000 lines of Python · 1,188 resolved forward predictions
 **Outcome:** the system's headline finding was false. I found it, retracted it, and rebuilt
 the validation layer so the same class of error is caught automatically.
 
@@ -121,12 +121,12 @@ none had recorded whether they could be filled. The evidence clock went back to 
 
 The forecasting advantage is real and was never the thing in doubt:
 
-**Model Brier 0.1581 vs market price 0.1677**, n = 322 resolved bets, out of sample. The
+**Model Brier 0.1585 vs market price 0.1687**, n = 326 resolved bets, out of sample. The
 model predicts earnings outcomes better than the market that prices them — though the
-margin has narrowed from 0.0135 to 0.0096 as the sample grew from 298 bets to 322, so part
-of the original gap was noise.
+margin is not stable: 0.0135 at n = 298, 0.0096 at n = 322, 0.0102 at n = 326. Part of the
+original gap was noise, and the remainder has not yet settled.
 
-It still doesn't make money — realised P&L **−0.033/$1**. The gap between those two facts is
+It still doesn't make money — realised P&L **−0.017/$1**. The gap between those two facts is
 the most useful thing the project taught me: **being better calibrated than a market is not
 the same as being able to profit from it.** The difference is spread, liquidity and
 fillability. On live books the mean bid-ask spread is 8¢ while the documented edge is 2.6%.

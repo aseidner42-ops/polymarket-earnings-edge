@@ -1,8 +1,8 @@
 # Polymarket Earnings Edge
 
-**Forecasts earnings outcomes better than the market that prices them — Brier 0.1581 vs
-0.1677 over 322 resolved bets, out of sample.
-Does not make money: realised P&L −0.033/$1, and the spread is 3.1× the edge.
+**Forecasts earnings outcomes better than the market that prices them — Brier 0.1585 vs
+0.1687 over 326 resolved bets, out of sample.
+Does not make money: realised P&L −0.017/$1, and the spread is 3.1× the edge.
 In October it reported a confirmed edge; I audited it, found it was five lucky rows, and
 retracted it.**
 
@@ -37,17 +37,19 @@ make money.
 
 | Claim | Status |
 |---|---|
-| Forecasts earnings outcomes better than the market price | **Supported, and narrowing.** Brier **0.1581** vs market **0.1677**, n = 322 resolved bets, out of sample |
+| Forecasts earnings outcomes better than the market price | **Supported.** Brier **0.1585** vs market **0.1687**, n = 326 resolved bets, out of sample |
 | Directional accuracy | 76% — but the base rate is ~86%, so this is *not* the interesting number |
-| Makes money | **No.** Realised P&L **−0.033/$1**, 95% CI [−0.21, +0.17], n = 319 |
-| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.73), ~17,000 bets would be needed; ~2,400 if restricted to low-variance favourites — which the measured listing rate puts about **9 years** away |
+| Makes money | **No.** Realised P&L **−0.017/$1**, 95% CI [−0.20, +0.19], n = 323 |
+| Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.78), ~18,000 bets would be needed; ~2,400 if restricted to low-variance favourites — which the measured listing rate puts about **9 years** away |
 
-1,341 forward predictions logged before the events, 1,163 resolved and scored after.
+1,356 forward predictions logged before the events, 1,188 resolved and scored after.
 
-The Brier gap is **shrinking as the sample grows** — 0.0135 at n = 298, 0.0096 at n = 322.
-The forecasting advantage is still there and still the only supported claim, but it is
-smaller than when it was first measured, and the honest reading is that some of the
-original margin was sample noise. Reported here rather than left at its best value.
+The Brier gap **moves as the sample grows, in both directions** — 0.0135 at n = 298,
+0.0096 at n = 322, 0.0102 at n = 326. An earlier version of this README called it
+"shrinking", which was a trend drawn through two points; the next reading went the other
+way. The advantage is real and is the only supported claim, but it is smaller than when
+first measured and it is not yet stable. Whatever the current figure is, it appears here,
+including when it is worse.
 
 In the figure at the top, both curves sit above the diagonal: the model and the market
 alike under-predict how often these outcomes occur. The model is closer to it — that is the Brier win — but neither is

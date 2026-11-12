@@ -125,3 +125,5 @@ scanned_at,markets,tradeable,best_ticker,best_outcome,best_net_edge,best_edge_qu
 2026-11-09T08:04:56,15,0,CBRS,eps_beat,None,0.0,None,None,True
 2026-11-09T07:10:50,15,0,CBRS,eps_beat,None,0.0,None,None,True
 2026-11-10T07:09:27,10,0,CBRS,eps_beat,None,0.0,None,None,True
+2026-11-11T07:05:38,7,0,VIK,eps_beat,-0.11400000000000005,0.0,0.0,None,True
+2026-11-12T07:02:02,10,0,PXLW,eps_beat,None,0.0,None,None,True
