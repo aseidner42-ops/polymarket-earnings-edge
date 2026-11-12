@@ -39,11 +39,13 @@ def _f(v) -> Optional[float]:
         return None
 
 
-def calibration_data(n_bins: int = 5) -> Dict[str, Any]:
-    """Reliability bins for the model and the market, over the same resolved bets.
+def scored_arrays() -> Dict[str, Any]:
+    """The resolved bets the headline Brier is computed on, as arrays.
 
-    Same exclusions the scorer uses — phantom prices, disputed resolutions, GAAP
-    contracts, duplicate events — so the figure and the headline Brier agree.
+    ONE definition, used by the calibration figure and by tools/brier_gap.py, so the figure,
+    the README headline and the significance test can never disagree about which bets count.
+    Same exclusions the scorer uses: phantom prices, disputed resolutions, GAAP contracts,
+    duplicate events.
     """
     rows = list(csv.DictReader(open(EDGE_LOG_PATH)))
     res = [r for r in rows
@@ -55,9 +57,18 @@ def calibration_data(n_bins: int = 5) -> Dict[str, Any]:
     res = ft._dedup_events([{**r, "ticker": r.get("ticker"),
                              "earnings_date": r.get("earnings_date"),
                              "outcome": r.get("outcome")} for r in res])
-    y = np.array([1.0 if r["actual_outcome"] == "YES" else 0.0 for r in res])
-    m = np.array([_f(r["model_prob"]) for r in res], float)
-    q = np.array([_f(r["market_prob"]) for r in res], float)
+    return {
+        "y": np.array([1.0 if r["actual_outcome"] == "YES" else 0.0 for r in res]),
+        "m": np.array([_f(r["model_prob"]) for r in res], float),
+        "q": np.array([_f(r["market_prob"]) for r in res], float),
+        "tickers": np.array([r.get("ticker") for r in res]),
+    }
+
+
+def calibration_data(n_bins: int = 5) -> Dict[str, Any]:
+    """Reliability bins for the model and the market, over the same resolved bets."""
+    arrays = scored_arrays()
+    y, m, q = arrays["y"], arrays["m"], arrays["q"]
     edges = np.linspace(0, 1, n_bins + 1)
     series = {"model": [], "market": []}
     for name, p in (("model", m), ("market", q)):

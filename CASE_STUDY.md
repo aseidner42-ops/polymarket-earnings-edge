@@ -119,15 +119,18 @@ none had recorded whether they could be filled. The evidence clock went back to 
 
 ## What survived
 
-The forecasting advantage is real and was never the thing in doubt:
+The model's forecasts score lower than the market's, but I had not tested whether that is
+more than noise, and when I did it is not:
 
 **Model Brier 0.1585 vs market price 0.1687**, n = 326 resolved bets, out of sample. The
-model predicts earnings outcomes better than the market that prices them — though the
-margin is not stable: 0.0135 at n = 298, 0.0096 at n = 322, 0.0102 at n = 326. Part of the
-original gap was noise, and the remainder has not yet settled.
+gap is +0.0102 with a block-bootstrap (by ticker) 95% CI of **[−0.014, +0.035]**; in about 21%
+of resamples the model is no better than the market. It has also moved: 0.0135 at n = 298,
+0.0096 at n = 322, 0.0102 at n = 326. So this is a lead, not a measured advantage. Both the
+model and the market beat a base-rate-only Brier of 0.1721. Reproduce with
+`python -m tools.brier_gap`.
 
 It still doesn't make money — realised P&L **−0.017/$1**. The gap between those two facts is
-the most useful thing the project taught me: **being better calibrated than a market is not
+the most useful thing the project taught me: **even a real calibration advantage over a market is not
 the same as being able to profit from it.** The difference is spread, liquidity and
 fillability. On live books the mean bid-ask spread is 8¢ while the documented edge is 2.6%.
 The spread is 3.1× the edge, and as a taker I paid it on every single trade.

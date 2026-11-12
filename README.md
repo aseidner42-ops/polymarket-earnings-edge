@@ -1,7 +1,8 @@
 # Polymarket Earnings Edge
 
-**Forecasts earnings outcomes better than the market that prices them — Brier 0.1585 vs
-0.1687 over 326 resolved bets, out of sample.
+**Scores lower (better) than the market that prices earnings contracts — Brier 0.1585 vs
+0.1687 over 326 resolved bets, out of sample — but the gap is not statistically significant
+(95% CI −0.014 to +0.035).
 Does not make money: realised P&L −0.017/$1, and the spread is 3.1× the edge.
 In October it reported a confirmed edge; I audited it, found it was five lucky rows, and
 retracted it.**
@@ -37,7 +38,7 @@ make money.
 
 | Claim | Status |
 |---|---|
-| Forecasts earnings outcomes better than the market price | **Supported.** Brier **0.1585** vs market **0.1687**, n = 326 resolved bets, out of sample |
+| Forecasts earnings outcomes better than the market price | **Point estimate favours the model; not statistically significant.** Brier **0.1585** vs market **0.1687**, n = 326 resolved bets, out of sample. Gap +0.0102, block-bootstrap 95% CI **[−0.014, +0.035]**: in about 21% of resamples the model is no better. Both beat the base-rate-only Brier of 0.1721 |
 | Directional accuracy | 76% — but the base rate is ~86%, so this is *not* the interesting number |
 | Makes money | **No.** Realised P&L **−0.017/$1**, 95% CI [−0.20, +0.19], n = 323 |
 | Could it *detect* an edge if one existed? | **Not yet.** At current payoff variance (SD 1.78), ~18,000 bets would be needed; ~2,400 if restricted to low-variance favourites — which the measured listing rate puts about **9 years** away |
@@ -47,16 +48,18 @@ make money.
 The Brier gap **moves as the sample grows, in both directions** — 0.0135 at n = 298,
 0.0096 at n = 322, 0.0102 at n = 326. An earlier version of this README called it
 "shrinking", which was a trend drawn through two points; the next reading went the other
-way. The advantage is real and is the only supported claim, but it is smaller than when
-first measured and it is not yet stable. Whatever the current figure is, it appears here,
-including when it is worse.
+way. The model's score is lower than the market's in every reading, but it is smaller than
+when first measured, it is not stable, and `tools/brier_gap.py` shows it is not distinguishable
+from zero at this sample size (resampling whole tickers, because bets on one company are not
+independent). It is the only forecasting claim the project has, and it is a lead, not a result.
+Whatever the current figure is, it appears here, including when it is worse.
 
 In the figure at the top, both curves sit above the diagonal: the model and the market
 alike under-predict how often these outcomes occur. The model is closer to it — that is the Brier win — but neither is
 well calibrated, and saying so matters more than the win.
 
-The gap between row 1 and row 3 is the whole story: **being better calibrated than a market
-is not the same as being able to profit from it.** The difference is spread, liquidity and
+The gap between row 1 and row 3 is the whole story: **even a real calibration advantage over a
+market is not the same as being able to profit from it.** The difference is spread, liquidity and
 fillability, and this project is largely a record of learning exactly how much that costs.
 
 ---
@@ -214,6 +217,8 @@ echo "FINNHUB_API_KEY=your_key" > .env        # Polymarket needs no key
 .venv/bin/python -m tools.cli serve           # local web app on :8000
 .venv/bin/python -m tools.test_validation     # 11 regression tests (the harness)
 .venv/bin/python -m tools.test_maker          # 8 regression tests (the maker's scorer)
+.venv/bin/python -m tools.test_brier_gap      # 5 regression tests (the significance tool)
+.venv/bin/python -m tools.brier_gap           # is the Brier gap vs the market real? (95% CI)
 .venv/bin/python -c "from tools import maker; print(maker.daily())"   # paper maker cycle
 .venv/bin/python -m tools.kelly_replication   # replicate the core paper (1,796 events)
 .venv/bin/python -m tools.make_figures        # redraw the calibration figure
